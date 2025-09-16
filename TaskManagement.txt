@@ -1,0 +1,18 @@
+notes:
+    *needs to be able to solve the systems of equations when the solution is infinite (parametrically)
+
+to do:
+    *get_matrix_from_user()
+    *gaussian_elimination(matrix=get_matrix_from_user())
+    *matrix_multiplication(matrixA=get_matrix_from_user(), matrixB=get_matrix_from_user())
+
+    to define:
+        *guassian_jordan_elimination(matrix=get_matrix_from_user())
+            -add more matrix opperations (transpose, trace, addition, etc.)
+        *UI, windows for each calculator + menu/selector page 
+            -input for each element in the matrix (dynamic ammount depending on dim)
+            -shows each steps (math papa style)
+            -reset features + does not save values or results after switching pages
+            -back to menu navigation
+
+complete:

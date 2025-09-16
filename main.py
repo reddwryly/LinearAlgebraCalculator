@@ -7,13 +7,15 @@ ideas for expanding this project:
     *have guassian(/jordan) elimination work for infinite solutions (solve parametrically)
 """
 
+#start with multiplication to get a better understanding of indexing**
+
 def get_matrix_from_user():
-    #ask for number of variables = (columns - 1) and equations = (rows)
+    #ask for number of equations = (rows) and variables = (columns - 1)
     #loop with append to array by equation (row)
     #return an array called matrix 
 
-    matrix = np.array([-3,-3,3,-1],[9,5,-1,4],[-9,-21,28,-2]) #test matrix = (11/60, 11/20, 2/5)
-    return matrix
+    testMatrix = np.array([-3,-3,3,-1],[9,5,-1,4],[-9,-21,28,-2]) #test matrix = (11/60, 11/20, 2/5)
+    return testMatrix
 
 def gaussian_elimination(matrix=get_matrix_from_user()):
 
@@ -54,13 +56,13 @@ def matrix_multiplication(matrixA=get_matrix_from_user(), matrixB=get_matrix_fro
 
     A x B
 
-    check dementions:
-        dem(a) = 2x3
-        dem(b) = 3x3
+    check dimensions:
+        dim(a) = 2x3
+        dim(b) = 3x3
 
         3=3 check
 
-        new dem = 2x3
+        new dim = 2x3
 
     result (r):
         r00 = (a00 * b00) + (a01 * b10) + (a02 * b20)
@@ -72,7 +74,7 @@ def matrix_multiplication(matrixA=get_matrix_from_user(), matrixB=get_matrix_fro
     
     *print each equation to the user ^
         iterate through the indexes 
-        print the two input matrixes as an equation and the result matrix 
+        print the two input matrixes as an equation and the result matrix (a * b = r but in matrix form)
 
     | r00 r01 r02 |
     | r10 r11 r12 |
