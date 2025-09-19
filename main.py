@@ -39,7 +39,8 @@ def gaussian_elimination(matrix=get_matrix_from_user()):
     #repeat for all equations
     pass
 
-def guassian_jordan_elimination(matrix=get_matrix_from_user()):
+def guassian_jordan_elimination(matrix=get_matrix_from_user()): # GJE means RREF - all zeroes in non-pivot points
+    # 
     pass
 
 def matrix_multiplication(matrixA=get_matrix_from_user(), matrixB=get_matrix_from_user()):
