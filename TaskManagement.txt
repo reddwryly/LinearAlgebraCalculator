@@ -15,4 +15,12 @@ to do:
             -reset features + does not save values or results after switching pages
             -back to menu navigation
 
-complete:
+Delegation:
+    Riley:
+        *gaussian_elimination
+
+    Braeden: 
+        *get_matrix_from_user
+        *guassian_jordan_elimination
+
+complete: 
