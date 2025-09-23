@@ -34,11 +34,17 @@ def get_matrix_from_user():
         solvingMethod = input("Please enter a 'G' or 'GJ' to solve: ")
 
     #loop with append to array by equation (row)
+    matrix = ([])
+    rowCounter = 0
+    while rowCounter < numRows:
+        inputRow = input("Enter a row of values, separated by commas: ")
+        
+        rowCounter += 1
     #return an array called matrix 
 
-    testMatrix = np.array([-3,-3,3,-1],
-                          [9,5,-1,4],
-                          [-9,-21,28,-2]) #test matrix = (11/60, 11/20, 2/5)
+    testMatrix = np.array([ [-3,-3,3,-1],
+                           [9,5,-1,4],
+                           [-9,-21,28,-2]]) #test matrix = (11/60, 11/20, 2/5)
     return testMatrix
 
 def gaussian_elimination(matrix=get_matrix_from_user()):
