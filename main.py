@@ -7,10 +7,32 @@ ideas for expanding this project:
     *have guassian(/jordan) elimination work for infinite solutions (solve parametrically)
 """
 
+def menu():
+    #any non-int input should bring you back to menu at any time
+
+    #loop for menu
+    print("""\nSystem of Equations using Matrix Calculator *Showing Steps* \n----------------------------------------------------------
+1.) Guassian Elimination \n2.) Guasian-Jordan Elimination \n3.) Matrix Multiplication \n4.) Exit\n""")
+
+
 #start with multiplication to get a better understanding of indexing**
 
 def get_matrix_from_user():
     #ask for number of equations = (rows) and variables = (columns - 1)
+    numRows = input("Enter number of rows/equations: ")
+    if numRows.isdigit() == False:
+        menu() # if the user enters not a number, then it should return to the menu
+
+    numColumns = input("Enter number of columns/variables: ")
+    if numColumns.isdigit() == False:
+        menu() # returns to main menu when non-number entered
+
+    # confirms the method to solve matrix 
+    solvingMethod = input("Would you like to see this matrix solved using Gaussian Elimination or Guass-Jordan Elimination?" \
+    "Enter 'G' or 'GJ': ")
+    while (solvingMethod.lower() != "g" and solvingMethod.lower != "gj"):
+        solvingMethod = input("Please enter a 'G' or 'GJ' to solve: ")
+
     #loop with append to array by equation (row)
     #return an array called matrix 
 
@@ -83,11 +105,3 @@ def matrix_multiplication(matrixA=get_matrix_from_user(), matrixB=get_matrix_fro
     """
     pass
 
-def menu():
-    #any non int input should bring you back to menu at any time
-
-    #loop for menu
-    print("""\nSystem of Equations using Matrix Calculator *Showing Steps* \n----------------------------------------------------------
-1.) Guassian Elimination \n2.) Guasian-Jordan Elimination \n3.) Matrix Multiplication \n4.) Exit\n""")
-
-menu()
