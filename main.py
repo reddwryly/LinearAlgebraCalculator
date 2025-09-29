@@ -58,7 +58,7 @@ def check_for_swap(matrix, rowTotal, pivotRowIndex, pivotColumnIndex):
             if column[index] != 0:
                 #swap rows so piviot index is not zero
                 print(f"r{pivotRowIndex+1} <=> r{index+1}")
-                matrix[pivotRowIndex] = matrix[index]
+                matrix[[pivotRowIndex, index]] = matrix[[index, pivotRowIndex]]
                # print(matrix[pivotRowIndex])
                 break
             if column[index] == 0 and index == rowTotal-1:
@@ -87,23 +87,22 @@ def gaussian_elimination(matrix):
 
     print(check_for_swap(matrix, rowTotal, pivotRowIndex, pivotColumnIndex)) #check_for_swap returns the matrix
 
-    # for column in range(len(matrix)): #for [0,1,2,3],[4,5,6,7],[8,9,10,11] => 0, 1, 2
-    #     for row in range(len(matrix[column])): #for [4,5,6,7] => 0, 1, 2, 3
-    #         print(row)
-    
     #repeat for all non pivot columns:
     #continue to non pivot row (top to bottom) => pivot * x - nonPivot = 0
     #multiply pivot row by x then add the non pivot row to the pivot row
     #print the row operation new matrix for the user
 
-    for indexC in range(pivotColumnIndex, columnTotal):
-        column = matrix[:,indexC] #returns column at the given index
-        pivot = column[pivotRowIndex]
-        rowMultiplier = (column[pivotRowIndex+1] * -1) / pivot
-        for indexR in range(pivotRowIndex+1, rowTotal):
-            newRowforAddition = rowMultiplier * column[indexR]
-            # matrix[indexR][indexC] = newRowforAddition + column[]
+    # for indexC in range(pivotColumnIndex, columnTotal):
+    #     column = matrix[:,indexC] #returns column at the given index
+    #     pivot = column[pivotRowIndex]
+    #     rowMultiplier = (column[pivotRowIndex+1] * -1) / pivot
+    #     for indexR in range(pivotRowIndex+1, rowTotal):
+    #         for c in range(columnTotal):
+    #             print(matrix[indexR][c])
 
+    for indexR in range(pivotRowIndex+1, rowTotal):
+            for c in range(columnTotal):
+                print(matrix[indexR][c])
     """
     *need to figure out how to scaler multiply to row 
     *and if i can also add two rows (matrix addition) possibly new function
