@@ -31,10 +31,12 @@ def checkInput(string):
     denominator = 0.0
     denominatorString = ""
     passedDivision = False # Boolean to tell if we're still on the numerator or denominator
+    letterDetected = False # Boolean to tell if the user has entered a letter/non-usable symbol
 
     # checks if the string is entirely numbers
     if string.isdigit() == True:
         output = float(string)
+        return output
     
     # if the string is not entirely numbers, then it checks for special symbols, like the division sign "/" for fractions
     else:
@@ -43,7 +45,12 @@ def checkInput(string):
         # checks if the user enters a character that is neither a fraction slash nor a number
         for character in string:
             if character != "/" and character.isdigit() == False:
-                menu()
+                letterDetected = True
+                return menu()
+                if letterDetected == True:
+                    pass
+
+                
             
             # if there is no letter/bad symbol in the input, then the user has to have entered numbers with a fraction slash
             else:
@@ -56,7 +63,6 @@ def checkInput(string):
                 # the value should still be stored as a fraction - the original string - to display to the user
 
                 # there is no need to check for other characters or input validation here, as that has already been done
-                print(character)
                 if character != "/" and passedDivision == False: # if the character is not "/" and we're still in the numerator
                     numeratorString += character
                 elif character == "/": # if the character is "/" then it marks that we have reached the denominator
