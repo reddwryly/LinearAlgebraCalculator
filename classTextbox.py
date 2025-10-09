@@ -20,12 +20,15 @@ class Textbox:
         
         # pygame_textinput has the TextInputVisualizer (visualizes text)
         self.textinput =  pygame_textinput.TextInputVisualizer(font_object=font)
-
-        # Boolean to tell if a textbox object is currently active or not
-        self.active = False
+        
+        # variable to establish the max character length of textbox
+        self.maxLength = maxLength
 
         # validation variable to ensure the user enters proper data
         self.allowedChars = allowedChars
+
+        # Boolean to tell if a textbox object is currently active or not
+        self.active = False
     
     # is called when an event occurs, like when the user clicks or presses a key
     # also validates input when the user enters data

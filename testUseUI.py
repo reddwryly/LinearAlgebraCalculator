@@ -58,8 +58,9 @@ textInput = pygame_textinput.TextInputVisualizer(font_color = (255, 100, 0), fon
 # NOTE: access user input via textInput.value
 
 # creates some textboxes on the screen. these ones are static and will not move
-boxRows = Textbox(620, 60, 80, 40, fontDimensions)
-boxColumns = Textbox(720, 60, 80, 40, fontDimensions)
+# these are where the user specifies the matrix size. these textboxes  take exactly 1 number
+boxRows = Textbox(700, 60, 40, 40, fontDimensions, 1, "0123456789")
+boxColumns = Textbox(810, 60, 40, 40, fontDimensions, 1, "0123456789")
 
 # creates a list that will store all matrix textboxes
 textboxes = []
@@ -157,6 +158,9 @@ while running:
 
     textDimensions = fontDimensions.render("DIMENSIONS: ", True, textDimensionsColor)
     screen.blit(textDimensions, (textDimensionsCoords))
+
+    textDimensionsCross = fontDimensions.render("X", True, textDimensionsColor)
+    screen.blit(textDimensionsCross, (textDimensionsCoords[0], textDimensionsCoords[1] + 40))
        
     # draws all the textboxes
     for textbox in textboxes:
