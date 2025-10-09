@@ -13,7 +13,8 @@ class Textbox:
     # declares new Pygame Rectangle objects. the parameters are x-coord, y-coord, width, height, font, max length and allowed characters
     # maxLength and allowedChars are needed because the user can only enter specific characters, and a specific amount of them
     # maxLength will likely be 7 because there could be a 3-digit over a 3-digit number in a fraction
-    # allowedChars
+    # allowedChars should typically be only numbers, decimals, and fraction slashes within a matrix.
+    # for dimension textboxes, those should be only numbers
     def __init__(self, x, y, width, height, font, maxLength = None, allowedChars = None):
         self.rect = pygame.Rect(x, y, width, height)
         
@@ -43,7 +44,11 @@ class Textbox:
             self.textinput.value = filteredText
         
         # validates input length
-        if self.
+        if self.maxLength is not None and len(self.textinput.value) > self.maxLength:
+
+            # truncates any extra letters immediately if the entry is max length
+            self.textinput.value = self.textinput.value[:self.maxLength]
+
     # draws the textbox on the screen. the parameters go: surface, color, Rectangle object
     # the textbox will have a colored border around it when it is active
     '''
