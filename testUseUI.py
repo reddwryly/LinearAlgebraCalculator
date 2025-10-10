@@ -51,6 +51,7 @@ running = True
 
 fontButtons = pygame.font.Font(None, 32)
 fontDimensions = pygame.font.Font(None, 40)
+fontMatrix = pygame.font.Font(None, 32)
 
 ''' USER INPUT '''
 # is the library best for handling user text input
@@ -68,13 +69,61 @@ textboxes.append(boxRows)
 textboxes.append(boxColumns)
 
 # code needs to establish a matrix based on the dimensions provided by user
-# perhaps the width of the matrix itself shall stay the same;
-#   * more rows will be appended as needed
-#   * the columns will get closer together and be smaller the more there are
-#   * if there are lots of rows, what should happen? should:
-#       - the user be able to scroll?
-#       - there be a limit on maximum equations?
-#       - the matrix resizes itself to fit the screen?
+#   * if there are lots of rows,there is a limit on the matrix size = 9x9
+
+# function for creating the matrix based on user input
+# numRows and numColumns will be the "textinput.value" for the dimensions textboxes,
+# startX and startY are the starting x- and y-coords for the matrix
+# width and height are the dimensions of each textbox
+# spacing is the space in pixels between each column and row
+matrixCreated = False
+def createMatrix(numRows, numColumns, startX, startY, width, height, spacing):
+    global textboxes
+    totalTextboxes = (int(numRows) * int(numColumns))
+
+    # iterates through the dimensions, creating textboxes
+    # goes row by row, creating each entry then moving to the next row
+    for r in range(numRows):
+        # establishes the y-value for the current row being made
+        y = startY + (r * spacing)
+
+        for c in range(numColumns):
+
+            # establishes the x-value for the textbox, incrementing the x-value to space them out on the row
+            # because this creates the textboxes per row, they all have the same y-value
+            # creates the textboxes with the provided values then appends them to the textboxes list to be displayed onscreen
+            x = startX + (c * spacing)
+            box = Textbox(x, y, width, height, fontMatrix, maxLength=7, allowedChars="0123456789/.")
+            textboxes.append(box)
+            
+
+
+''' ### NECESSARY: DYNAMIC MATRIX TEXTBOX SPACING ###
+This is necessary because if spacing is even all around, the vertical spacing is too much and 9 rows go off the page. horizontal
+is too little and 9 columns end up touching. 
+    # spacing is determined based on matrix size
+    # vertical spacing needs to be small. horizontal spacing needs to be enough to hold all 9 columns, with each box being pretty wide
+    verticalSpacing = 0
+    horizontalSpacing = 0
+    spacingIncrement = 0
+
+    # textbox width is based on how many columns there are
+    width = 0
+
+    # textbox height is based on how many rows there are
+    height = 0
+
+    ### determines spacing, width and height ###
+    # the loops for spacing make the spacing between 10 pixels (for 9 rows/columns) and 80 pixels (for 2 rows/columns)
+    # if the max matrix size is 9x9, then imagine the spacing is the difference of 10 and number of rows/columns, times 10 pixels
+    # for example, if the matrix is 3x6, then the spacing vertically should be (10-3) * 10 = 7 * 10 = 70 pixels
+    # the horizontal spacing should be (10-6) * 10 = 4 * 10 = 40 pixels
+    # code here
+
+    # loops and creates every textbox needed until the right amount is created
+    for i in range(totalTextboxes):
+        y = startY + (i * spacing)
+'''
 
 # information for the rectangles and text - coords, dimensions, color
 
@@ -130,15 +179,55 @@ while running:
                         else:
                             textbox.active = False
 
-                    # if clicked outside a textbox, deactivates all textboxes
+                    # deactivates all textboxes if user has clicked away from them all
                     if clickedAny == False:
                         for textbox in textboxes:
                             textbox.active = False
 
+                    # checks if the matrix has already been created or not
+                    if matrixCreated == False:
+                        # if the matrix is not created, then it checks for values in the dimensions textboxes
+                        if boxRows.textinput.value and boxColumns.textinput.value:
+                            # these "final" values are just semi-permanent dimension values so the matrix doesn't always clear itself
+                            finalColumnValue = int(boxColumns.textinput.value)
+                            finalRowValue = int(boxRows.textinput.value)
+                            
+                            # creates the matrix with the input values
+                            createMatrix(numRows=finalRowValue, numColumns=finalColumnValue, startX=250, startY=120,
+                                         width=90, height=30, spacing=90)
+
+                            # declares a matrix is created
+                            matrixCreated = True
+                    
+                    # runs if the matrix has already been created
+                    # the user can change their matrix at any time but it will (as of right now) replace it with a new one
+                    else:
+                        isDifferent = False
+                        # checks if the current dimension values are different than what are saved
+                        if (boxColumns.textinput.value != str(finalColumnValue)):
+                            finalColumnValue = boxColumns.textinput.value
+                            isDifferent = True                    
+                        if (boxRows.textinput.value != str(finalRowValue)):
+                            finalRowValue = boxRows.textinput.value
+                            isDifferent = True
+                        
+                        # if the user changes the dimensions, then it creates a new matrix with those dimensions
+                        if isDifferent == True:
+                            createMatrix(finalRowValue, finalColumnValue, 250, 120, 90, 30, 50)
+
                     # if the main button is clicked on
-                    if buttonMain.collidepoint(event.pos): # if the button collides, at a point, with the event position (which is the click)
+                    if buttonMain.collidepoint(event.pos):
                         print("box successfully clicked!")
 
+                ''' *** THIS CODE IS FOR PRESSING TAB AND ENTER ***
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_TAB:
+                        ### code for tabbing over one textbox (or going to next row if end of row)
+
+                    elif event.key == pygame.K_RETURN:
+                        ### code for pressing enter, moving to next row 
+                '''
+    
     # if a textbox is active, this will "handle events" AKA update the textbox with user text
     for textbox in textboxes:
         textbox.handleEvents(events)
@@ -160,7 +249,7 @@ while running:
     screen.blit(textDimensions, (textDimensionsCoords))
 
     textDimensionsCross = fontDimensions.render("X", True, textDimensionsColor)
-    screen.blit(textDimensionsCross, (textDimensionsCoords[0], textDimensionsCoords[1] + 40))
+    screen.blit(textDimensionsCross, (textDimensionsCoords[0] + 85, textDimensionsCoords[1] + 50))
        
     # draws all the textboxes
     for textbox in textboxes:
