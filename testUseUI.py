@@ -53,7 +53,7 @@ fontButtons = pygame.font.Font(None, 32)
 fontDimensions = pygame.font.Font(None, 40)
 fontMatrix = pygame.font.Font(None, 32)
 
-''' USER INPUT '''
+'''--- USER INPUT ---'''
 # is the library best for handling user text input
 textInput = pygame_textinput.TextInputVisualizer(font_color = (255, 100, 0), font_object = fontDimensions)
 # NOTE: access user input via textInput.value
@@ -68,6 +68,7 @@ textboxes = []
 textboxes.append(boxRows)
 textboxes.append(boxColumns)
 
+'''--- FUNCTIONS ---'''
 # code needs to establish a matrix based on the dimensions provided by user
 #   * if there are lots of rows,there is a limit on the matrix size = 9x9
 
@@ -75,24 +76,24 @@ textboxes.append(boxColumns)
 # numRows and numColumns will be the "textinput.value" for the dimensions textboxes,
 # startX and startY are the starting x- and y-coords for the matrix
 # width and height are the dimensions of each textbox
-# spacing is the space in pixels between each column and row
+# spacing is the space between boxes in pixels. by default, good values for x- and y-spacing are 120 and 60
 matrixCreated = False
-def createMatrix(numRows, numColumns, startX, startY, width, height, spacing):
+def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, ySpacing):
     global textboxes
     totalTextboxes = (int(numRows) * int(numColumns))
 
     # iterates through the dimensions, creating textboxes
     # goes row by row, creating each entry then moving to the next row
     for r in range(numRows):
-        # establishes the y-value for the current row being made
-        y = startY + (r * spacing)
 
+        # establishes the y-value for the current row being made, changing by a multiple of spacing
+        y = startY + (r * ySpacing)
         for c in range(numColumns):
 
             # establishes the x-value for the textbox, incrementing the x-value to space them out on the row
             # because this creates the textboxes per row, they all have the same y-value
             # creates the textboxes with the provided values then appends them to the textboxes list to be displayed onscreen
-            x = startX + (c * spacing)
+            x = startX + (c * xSpacing)
             box = Textbox(x, y, width, height, fontMatrix, maxLength=7, allowedChars="0123456789/.")
             textboxes.append(box)
             
@@ -101,7 +102,10 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, spacing):
 ''' ### NECESSARY: DYNAMIC MATRIX TEXTBOX SPACING ###
 This is necessary because if spacing is even all around, the vertical spacing is too much and 9 rows go off the page. horizontal
 is too little and 9 columns end up touching. 
-    # spacing is determined based on matrix size
+
+
+
+    ### OPTIONAL: spacing is determined based on matrix size ###
     # vertical spacing needs to be small. horizontal spacing needs to be enough to hold all 9 columns, with each box being pretty wide
     verticalSpacing = 0
     horizontalSpacing = 0
@@ -194,7 +198,7 @@ while running:
                             
                             # creates the matrix with the input values
                             createMatrix(numRows=finalRowValue, numColumns=finalColumnValue, startX=250, startY=120,
-                                         width=90, height=30, spacing=90)
+                                         width=100, height=30, xSpacing=110, ySpacing=45)
 
                             # declares a matrix is created
                             matrixCreated = True
@@ -205,15 +209,15 @@ while running:
                         isDifferent = False
                         # checks if the current dimension values are different than what are saved
                         if (boxColumns.textinput.value != str(finalColumnValue)):
-                            finalColumnValue = boxColumns.textinput.value
+                            finalColumnValue = int(boxColumns.textinput.value)
                             isDifferent = True                    
                         if (boxRows.textinput.value != str(finalRowValue)):
-                            finalRowValue = boxRows.textinput.value
+                            finalRowValue = int(boxRows.textinput.value)
                             isDifferent = True
                         
                         # if the user changes the dimensions, then it creates a new matrix with those dimensions
                         if isDifferent == True:
-                            createMatrix(finalRowValue, finalColumnValue, 250, 120, 90, 30, 50)
+                            createMatrix(finalRowValue, finalColumnValue, 250, 120, 100, 30, 110, 45)
 
                     # if the main button is clicked on
                     if buttonMain.collidepoint(event.pos):
