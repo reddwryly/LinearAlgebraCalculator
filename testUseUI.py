@@ -92,9 +92,11 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
 
             # establishes the x-value for the textbox, incrementing the x-value to space them out on the row
             # because this creates the textboxes per row, they all have the same y-value
-            # creates the textboxes with the provided values then appends them to the textboxes list to be displayed onscreen
             x = startX + (c * xSpacing)
-            box = Textbox(x, y, width, height, fontMatrix, maxLength=7, allowedChars="0123456789/.")
+
+            # creates the textboxes with the provided values then appends them to the textboxes list to be displayed onscreen
+            # "row" and "column" are the textbox's row and column coords; the +1 is needed because of the for-in-range loops
+            box = Textbox(x, y, width, height, fontMatrix, row=r+1, column=c+1, maxLength=7, allowedChars="0123456789/.")
             textboxes.append(box)
             
 
@@ -224,13 +226,63 @@ while running:
                         print("box successfully clicked!")
 
                 ''' *** THIS CODE IS FOR PRESSING TAB AND ENTER ***
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_TAB:
-                        ### code for tabbing over one textbox (or going to next row if end of row)
-
-                    elif event.key == pygame.K_RETURN:
-                        ### code for pressing enter, moving to next row 
+                # user can press tab to navigate textboxes, left -> right and top to bottom like a book
+                # each textbox must be given an identifier, to know which row and column it's in
                 '''
+            elif event.type == pygame.KEYDOWN:
+                activeRow = 1
+                activeColumn = 1
+                    
+            # checks for any textbox being active
+                for textbox in textboxes:
+                    if textbox.active == True:
+
+                        # establishes variables based on what the currently active textbox is
+                        activeRow = textbox.row
+                        activeColumn = textbox.column
+
+                        nextRow = activeRow + 1
+                        nextColumn = activeColumn + 1
+
+                if event.key == pygame.K_TAB:
+
+                    # checks if the next column is less than the column count/if the active textbox is at the last column or not
+                    # executes if the active column is not the last column
+                    if activeColumn < int(boxColumns.textinput.value):
+                        activeColumn += 1
+
+                        # sets the active textbox to be false
+                        textbox.active = False
+
+                        # with the new active column, checks the textboxes in the loop to see which matches active row and column
+                        # sets the textbox that matches the next column to be active
+                        if textbox.row == activeRow and textbox.column == activeColumn:
+                            textbox.active = True
+                    
+                    # "else" runs if the active column is the last one
+                    else:
+
+                        # sets the active column to the first one of the new row
+                        activeColumn = 1
+
+                        # checks if the user is on the last row or not
+                        if activeRow < int(boxRows.textinput.value):
+                            activeRow += 1
+                        
+                        # if the user is ccurrently on the last entry, hitting tab exits the matrix
+                        else:
+                            textbox.active = False
+                            
+                        
+                # if the user presses enter
+                elif event.key == pygame.K_RETURN:
+                    if activeRow < int(boxRows.textinput.value):
+
+                        # sets the active row to the next one and the column to the first
+                        activeRow += 1
+                        activeColumn = 1
+
+                
     
     # if a textbox is active, this will "handle events" AKA update the textbox with user text
     for textbox in textboxes:
@@ -263,6 +315,5 @@ while running:
     pygame.display.flip()
 
     clock.tick(30)  # limits FPS to 30
-    #print(textboxes)
 
 pygame.quit()

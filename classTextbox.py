@@ -15,7 +15,7 @@ class Textbox:
     # maxLength will likely be 7 because there could be a 3-digit over a 3-digit number in a fraction
     # allowedChars should typically be only numbers, decimals, and fraction slashes within a matrix.
     # for dimension textboxes, those should be only numbers
-    def __init__(self, x, y, width, height, font, maxLength = None, allowedChars = None):
+    def __init__(self, x, y, width, height, font, row = None, column = None, maxLength = None, allowedChars = None):
         self.rect = pygame.Rect(x, y, width, height)
         
         # pygame_textinput has the TextInputVisualizer (visualizes text)
@@ -29,6 +29,10 @@ class Textbox:
 
         # Boolean to tell if a textbox object is currently active or not
         self.active = False
+
+        # the textbox's row and column
+        self.row = row
+        self.column = column
     
     # is called when an event occurs, like when the user clicks or presses a key
     # also validates input when the user enters data
