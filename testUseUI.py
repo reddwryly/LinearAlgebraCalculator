@@ -253,56 +253,60 @@ while running:
                         nextRow = activeRow + 1
                         nextColumn = int(activeColumn) + 1
 
-                if event.key == pygame.K_TAB:
-                    ''''debug'''
-                    print("tab pressed", activeRow, activeColumn)
-                    # checks if the next column is less than the column count/if the active textbox is at the last column or not
-                    # executes if the active column is not the last column
-                    if activeColumn < int(boxColumns.textinput.value):
-                        # sets the current textbox to be false
-                        textbox.active = False
-                        
-                        # increments the active column, because the active textbox should move over one column
-                        activeColumn += 1
-                        '''debug'''
-                        print("at not-end textbox")
+                        if event.key == pygame.K_TAB:
+                            ''''debug'''
+                            print("tab pressed at", activeRow, activeColumn)
+                            # checks if the next column is less than the column count/if the active textbox is at the last column or not
+                            # executes if the active column is not the last column
+                            if activeColumn < int(boxColumns.textinput.value):
+                                # sets the current textbox to be false
+                                textbox.active = False
+                                
+                                # increments the active column, because the active textbox should move over one column
+                                activeColumn += 1
+                                '''debug'''
+                                print("at not-end textbox")
 
-                        # with the new active column, checks the textboxes in the loop to see which matches active row and column
-                        # sets the textbox that matches the next column to be active
-                        # realistically, it should be the next textbox to the right
-                        '''debug'''
-                        print(f"active row: {activeRow}, active column: {activeColumn}")
-                        if textbox.row == activeRow and textbox.column == activeColumn:
-                            textbox.active = True
-                    
-                    # "else" runs if the active column is the last one
-                    else:
+                                # with the new active column, checks the textboxes in the loop to see which matches active row and column
+                                # sets the textbox that matches the next column to be active
+                                # realistically, it should be the next textbox to the right
+                                '''debug'''
+                                print(f"active row: {activeRow}, active column: {activeColumn}")
 
-                        # sets the active column to the first one of the new row
-                        activeColumn = 1
-
-                        # checks if the user is on the last row or not
-                        if activeRow < int(boxRows.textinput.value):
-                            activeRow += 1
-                        
-                        # if the user is ccurrently on the last entry, hitting tab exits the matrix
-                        else:
-                            textbox.active = False
+                                # i know this isn't most efficient, i just want it to work for now >:(
+                                for textbox2 in textboxes:
+                                    if textbox2.row == activeRow and textbox2.column == activeColumn:
+                                        textbox2.active = True
+                                        textbox.active = False
                             
-                        
-                # if the user presses enter
-                elif event.key == pygame.K_RETURN:
-                    '''debug'''
-                    print("enter pressed")
-                    if activeRow < int(boxRows.textinput.value):
+                            # "else" runs if the active column is the last one
+                            else:
 
-                        # sets the active row to the next one and the column to the first
-                        activeRow += 1
-                        activeColumn = 1
-                    
-                    # else, when the active row is the last one in the matrix. exits the matrix
-                    else:
-                        textbox.active = False
+                                # sets the active column to the first one of the new row
+                                activeColumn = 1
+
+                                # checks if the user is on the last row or not
+                                if activeRow < int(boxRows.textinput.value):
+                                    activeRow += 1
+                                
+                                # if the user is ccurrently on the last entry, hitting tab exits the matrix
+                                else:
+                                    textbox.active = False
+                                    
+                                
+                        # if the user presses enter
+                        elif event.key == pygame.K_RETURN:
+                            '''debug'''
+                            print("enter pressed")
+                            if activeRow < int(boxRows.textinput.value):
+
+                                # sets the active row to the next one and the column to the first
+                                activeRow += 1
+                                activeColumn = 1
+                            
+                            # else, when the active row is the last one in the matrix. exits the matrix
+                            else:
+                                textbox.active = False
 
                 
     
