@@ -101,11 +101,7 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
             
 
 
-''' ### NECESSARY: DYNAMIC MATRIX TEXTBOX SPACING ###
-This is necessary because if spacing is even all around, the vertical spacing is too much and 9 rows go off the page. horizontal
-is too little and 9 columns end up touching. 
-
-
+''' ### OPTIONAL: DYNAMIC MATRIX TEXTBOX SPACING ###
 
     ### OPTIONAL: spacing is determined based on matrix size ###
     # vertical spacing needs to be small. horizontal spacing needs to be enough to hold all 9 columns, with each box being pretty wide
@@ -182,6 +178,7 @@ while running:
                         if textbox.clickedInside(pos):
                             textbox.active = True
                             clickedAny = True
+ 
                         else:
                             textbox.active = False
 
@@ -205,6 +202,10 @@ while running:
                             # declares a matrix is created
                             matrixCreated = True
                     
+
+                        ''' CODE FOR CHANGING MATRIX SIZES'''
+                        ''' this works as intended if the user hasn't entered any values when they change matrix sizes.
+                        however, there is a bug where if they enter any value(s) and try to change the dimensions, it doesn't work'''
                     # runs if the matrix has already been created
                     # the user can change their matrix at any time but it will (as of right now) replace it with a new one
                     else:
@@ -229,9 +230,17 @@ while running:
                 # user can press tab to navigate textboxes, left -> right and top to bottom like a book
                 # each textbox must be given an identifier, to know which row and column it's in
                 '''
+
+                '''
+                The code needs to check for which textbox is currently active. It then needs to get the row and column of that box.
+                When TAB or ENTER or pressed, the textbox needs to deactive and the NEXT textbox needs to become active
+                '''
+            # executes if the user presses a key
             elif event.type == pygame.KEYDOWN:
                 activeRow = 1
                 activeColumn = 1
+                nextRow = 1
+                nextColumn = 1
                     
             # checks for any textbox being active
                 for textbox in textboxes:
@@ -242,20 +251,27 @@ while running:
                         activeColumn = textbox.column
 
                         nextRow = activeRow + 1
-                        nextColumn = activeColumn + 1
+                        nextColumn = int(activeColumn) + 1
 
                 if event.key == pygame.K_TAB:
-
+                    ''''debug'''
+                    print("tab pressed", activeRow, activeColumn)
                     # checks if the next column is less than the column count/if the active textbox is at the last column or not
                     # executes if the active column is not the last column
                     if activeColumn < int(boxColumns.textinput.value):
-                        activeColumn += 1
-
-                        # sets the active textbox to be false
+                        # sets the current textbox to be false
                         textbox.active = False
+                        
+                        # increments the active column, because the active textbox should move over one column
+                        activeColumn += 1
+                        '''debug'''
+                        print("at not-end textbox")
 
                         # with the new active column, checks the textboxes in the loop to see which matches active row and column
                         # sets the textbox that matches the next column to be active
+                        # realistically, it should be the next textbox to the right
+                        '''debug'''
+                        print(f"active row: {activeRow}, active column: {activeColumn}")
                         if textbox.row == activeRow and textbox.column == activeColumn:
                             textbox.active = True
                     
@@ -276,11 +292,17 @@ while running:
                         
                 # if the user presses enter
                 elif event.key == pygame.K_RETURN:
+                    '''debug'''
+                    print("enter pressed")
                     if activeRow < int(boxRows.textinput.value):
 
                         # sets the active row to the next one and the column to the first
                         activeRow += 1
                         activeColumn = 1
+                    
+                    # else, when the active row is the last one in the matrix. exits the matrix
+                    else:
+                        textbox.active = False
 
                 
     
