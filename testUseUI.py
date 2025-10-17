@@ -63,7 +63,8 @@ textInput = pygame_textinput.TextInputVisualizer(font_color = (255, 100, 0), fon
 boxRows = Textbox(700, 60, 40, 40, fontDimensions, 1, "0123456789")
 boxColumns = Textbox(810, 60, 40, 40, fontDimensions, 1, "0123456789")
 
-# creates a list that will store all matrix textboxes
+# creates a list that will store all textboxes
+# the input for dimensions will be the first two boxes (indices 0 and 1). every other box past it is part of the matrix
 textboxes = []
 textboxes.append(boxRows)
 textboxes.append(boxColumns)
@@ -228,85 +229,88 @@ while running:
 
                 ''' *** THIS CODE IS FOR PRESSING TAB AND ENTER ***
                 # user can press tab to navigate textboxes, left -> right and top to bottom like a book
-                # each textbox must be given an identifier, to know which row and column it's in
+                # each textbox records its row and column, which are used for this navigation
                 '''
 
                 '''
-                The code needs to check for which textbox is currently active. It then needs to get the row and column of that box.
-                When TAB or ENTER or pressed, the textbox needs to deactive and the NEXT textbox needs to become active
+                The code checks for which textbox is currently active. It then gets the row and column of that box.
+                When TAB or ENTER or pressed, the textbox deactivates and the NEXT textbox becomes active
+                However, if the last textbox in the whole matrix is active and TAB or ENTER are pressed, all textboxes deactivate
+                Also, the user currently cannot press TAB or ENTER for the dimensions textboxes. this can be fixed
                 '''
             # executes if the user presses a key
             elif event.type == pygame.KEYDOWN:
-                activeRow = 1
-                activeColumn = 1
-                nextRow = 1
-                nextColumn = 1
+
+                # checks if the key that was pressed is TAB or ENTER
+                if event.key == pygame.K_TAB or event.key == pygame.K_RETURN:
+
+                    # creates an index variable to navigate the textbox list, and another var to record the active textbox
+                    textboxIndex = 0
+                    activeTextbox = None
+
+                    # loops through the textboxes. increments the index until the active textbox is found
+                    # if no textbox is active, then the textboxIndex will be the exact length of the list
+                    for textbox in textboxes:
+                        if textbox.active == True:
+                            break
+                        else:
+                            textboxIndex += 1
                     
-            # checks for any textbox being active
-                for textbox in textboxes:
-                    if textbox.active == True:
+                        ''' executes if there is an active textbox '''
+                    if textboxIndex < len(textboxes):
 
-                        # establishes variables based on what the currently active textbox is
-                        activeRow = textbox.row
-                        activeColumn = textbox.column
+                        # gathers the active row and column from the active textbox
+                        activeRow = textboxes[textboxIndex].row
+                        activeColumn = textboxes[textboxIndex].column
 
-                        nextRow = activeRow + 1
-                        nextColumn = int(activeColumn) + 1
-
+                        # if the user pressed TAB:
                         if event.key == pygame.K_TAB:
-                            ''''debug'''
-                            print("tab pressed at", activeRow, activeColumn)
-                            # checks if the next column is less than the column count/if the active textbox is at the last column or not
-                            # executes if the active column is not the last column
+
+                            # if textbox isn't last column:
                             if activeColumn < int(boxColumns.textinput.value):
-                                # sets the current textbox to be false
-                                textbox.active = False
-                                
-                                # increments the active column, because the active textbox should move over one column
-                                activeColumn += 1
-                                '''debug'''
-                                print("at not-end textbox")
 
-                                # with the new active column, checks the textboxes in the loop to see which matches active row and column
-                                # sets the textbox that matches the next column to be active
-                                # realistically, it should be the next textbox to the right
-                                '''debug'''
-                                print(f"active row: {activeRow}, active column: {activeColumn}")
+                                # deactivates the current textbox, using the active index
+                                textboxes[textboxIndex].active = False
 
-                                # i know this isn't most efficient, i just want it to work for now >:(
-                                for textbox2 in textboxes:
-                                    if textbox2.row == activeRow and textbox2.column == activeColumn:
-                                        textbox2.active = True
-                                        textbox.active = False
+                                # moves the active textbox to one column to the right
+                                textboxes[textboxIndex + 1].active = True
                             
-                            # "else" runs if the active column is the last one
-                            else:
+                            # else if the textbox is the last column:
+                            elif activeColumn == int(boxColumns.textinput.value):
 
-                                # sets the active column to the first one of the new row
-                                activeColumn = 1
+                                # if the textbox isn't the last textbox in the whole matrix:
+                                if activeRow != int(boxRows.textinput.value):
 
-                                # checks if the user is on the last row or not
-                                if activeRow < int(boxRows.textinput.value):
-                                    activeRow += 1
-                                
-                                # if the user is ccurrently on the last entry, hitting tab exits the matrix
-                                else:
-                                    textbox.active = False
+                                    # sets the active textbox to the first column, one row down
+                                    # this is also technically the next textbox in the textboxes list
                                     
+                                    # deactivates current textbox and activates next textbox like above
+                                    textboxes[textboxIndex].active = False
+                                    textboxes[textboxIndex + 1].active = True
                                 
-                        # if the user presses enter
+                                # else, when the active textbox is the very last textbox:
+                                else:
+
+                                    # deactivates all textboxes if user presses TAB in the last textbox
+                                    for textbox in textboxes:
+                                        textbox.active = False
+
+                        # else if the user presses ENTER
                         elif event.key == pygame.K_RETURN:
-                            '''debug'''
-                            print("enter pressed")
+
+                            # if active textbox isn't in last row:
                             if activeRow < int(boxRows.textinput.value):
 
-                                # sets the active row to the next one and the column to the first
-                                activeRow += 1
-                                activeColumn = 1
+                                # deactives current, sets active textbox to first column, next row (next textbox in textboxes list)
+                                textboxes[textboxIndex].active = False
+                                textboxes[textboxIndex + 1].active = True
                             
-                            # else, when the active row is the last one in the matrix. exits the matrix
+                            # else, when textbox is in the last row:
                             else:
-                                textbox.active = False
+
+                                # deactivates all textboxes when the user presses ENTER in the last row
+                                for textbox in textboxes:
+                                    textbox.active = False
 
                 
     
