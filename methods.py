@@ -22,6 +22,8 @@ tempList = data.tempList
 matrixCreated = False
 def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, ySpacing):
     global matrixTextboxes
+    # clears the matrix textbox list in case there is anything in it
+    matrixTextboxes = []
     totalTextboxes = (int(numRows) * int(numColumns))
 
     # iterates through the dimensions, creating textboxes
@@ -153,10 +155,25 @@ def changeMatrixSize():
                 isDifferent = True
             
             # if the user changes the dimensions, then it deletes the old matrix & creates a new matrix with new dimensions
+            # needs to compare stored matrix textboxes to the new ones. those that remain must carry their values over
             if isDifferent == True:
                 print("Deleting old matrix...")
-                print("creating new matrix")
+                print("creating new matrix...")
+
+                # "createMatrix" automatically stores matrix textboxes in a list and clears it with every creation
+                # a copy of that list is made here before the new matrix is created
+                matrixCopy = matrixTextboxes
                 createMatrix(savedRows, savedColumns, 250, 120, 100, 30, 110, 45)
+
+                # once the new matrix has been created, compares new and old textboxes to carry over applicable old values
+                # the row and column of each textbox just need to be the same
+                for textbox in matrixTextboxes:
+                    for oldBox in matrixCopy:
+                        if textbox.row == oldBox.row and textbox.column == oldBox.column:
+                            
+                            # if textboxes match row and column, the new textbox carries the same value
+                            textbox.textinput.value = oldBox.textinput.value
+
                 data.savedRows = numRows
                 data.savedColumns = numColumns
             
