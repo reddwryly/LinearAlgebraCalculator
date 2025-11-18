@@ -63,6 +63,11 @@ class Textbox:
     * Draws background rectangle > draws border outline > blits text surface (self.textinput.surface) into textbox
     * Displayed with the later "pygame.display.flip()"
     '''
+    # renders updated text for textboxes
+    def renderUpdate(self, value, surface):
+        self.textinput.value = value
+        surface.blit(self.textinput.surface, (self.rect.x + 5, self.rect.y + 5) )
+
     def draw(self, surface):
         # draws the main textbox itself. fills it with white
         pygame.draw.rect(surface, (255, 255, 255), self.rect)
@@ -80,10 +85,20 @@ class Textbox:
         # "surface" is the target surface to copy ONTO. "self.textinput.surface" is the surface to copy FROM
         # "self.textinput.surface" automatically creates a surface every frame from user events
         # the last parameter is (x,y) coords of where to copy the data; in this case, the top left of the textbox
+        # because this displays text on-screen, if you want text to be updated, the textinput.surface must be blitted like this
         surface.blit(self.textinput.surface, (self.rect.x + 5, self.rect.y + 5) )
 
     # returns Boolean based on if the user clicks on the textbox
     def clickedInside(self, pos):
         return self.rect.collidepoint(pos)
 
+    # clears the value in the textbox
+    def clearValue(self, surface):
+        self.renderUpdate("", surface)
 
+    # activates or deactivates textbox cursor when needed
+    def checkCursor(self):
+        if self.active:
+            self.textinput.cursor_visible = True
+        else:
+            self.textinput.cursor_visible = False
