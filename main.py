@@ -1,39 +1,7 @@
 import numpy as np
-import re
-from fractions import Fraction
+# import re
+# from fractions import Fraction
 np.set_printoptions(precision=10, suppress=False)
-
-def menu():
-    #any non-int input should bring you back to menu at any time
-
-    #loop for menu
-    print("""\nSystem of Equations using Matrix Calculator *Showing Steps* \n----------------------------------------------------------
-1.) Guassian Elimination \n2.) Guasian-Jordan Elimination \n3.) Matrix Multiplication \n4.) Exit\n""")
-
-
-def get_matrix_from_user():
-    #ask for number of equations = (rows) and variables = (columns - 1)
-    numRows = input("Enter number of rows/equations: ")
-    if numRows.isdigit() == False:
-        menu() # if the user enters not a number, then it should return to the menu
-
-    numColumns = input("Enter number of columns/variables: ")
-    if numColumns.isdigit() == False:
-        menu() # returns to main menu when non-number entered
-
-    # confirms the method to solve matrix 
-    solvingMethod = input("Would you like to see this matrix solved using Gaussian Elimination or Guass-Jordan Elimination?" \
-    "Enter 'G' or 'GJ': ")
-    while (solvingMethod.lower() != "g" and solvingMethod.lower != "gj"):
-        solvingMethod = input("Please enter a 'G' or 'GJ' to solve: ")
-
-    #loop with append to array by equation (row)
-    #return an array called matrix 
-
-    testMatrix = np.array([[-3,-3,3,-1],
-                          [9,5,-1,4],
-                          [-9,-21,28,-2]]) #test matrix = (11/60, 11/20, 2/5)
-    return testMatrix
 
 testMatrix1 = np.array([[0,-3,3,-1],
                           [9,0,-1,4],
