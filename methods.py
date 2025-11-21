@@ -40,7 +40,6 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
             # "row" and "column" are the textbox's row and column coords; the +1 is needed because of the for-in-range loops
             box = Textbox(x, y, width, height, fontMatrix, row=r+1, column=c+1, maxLength=7, allowedChars="0123456789/.")
             data.matrixTextboxes.append(box)
-            print(data.matrixTextboxes)
 
 '''#########################################'''
 
@@ -106,7 +105,6 @@ def solveMatrix(method):
 # changes matrix dimensions. checks if and executes when dimension values change
 def changeMatrixSize():
     global boxColumns, boxRows
-    print(data.matrixValues)
 
     savedRows = int(data.savedRows)
     savedColumns = int(data.savedColumns)
@@ -127,14 +125,10 @@ def changeMatrixSize():
     if data.matrixCreated:
         # checks if the user has updated the dimensions values. does nothing if no change, executes if there is
         if (int(savedColumns) == int(numColumns)) and (int(savedRows) == int(numRows)):
-            print("matrix not changed", numRows, numColumns)
             pass
 
         # else, if the user has changed either the columns or dimensions:
         else:
-            print("matrix changed")
-            print("saved: ", savedRows, savedColumns)
-            print("new: ", numRows, numColumns)
             storeValues()
 
             # runs if the matrix has already been created
@@ -143,19 +137,15 @@ def changeMatrixSize():
 
             # checks if the current dimension values are different than what are saved
             if (boxColumns.textinput.value != str(savedColumns)):
-                print("columns different")
                 savedColumns = int(boxColumns.textinput.value)
                 isDifferent = True                    
             if (boxRows.textinput.value != str(savedRows)):
-                print("rows different")
                 savedRows = int(boxRows.textinput.value)
                 isDifferent = True
             
             # if the user changes the dimensions, then it deletes the old matrix & creates a new matrix with new dimensions
             # needs to compare stored matrix textboxes to the new ones. those that remain must carry their values over
             if isDifferent == True:
-                print("Deleting old matrix...")
-                print("creating new matrix...")
 
                 # a copy of the matrix textbox list is made here before the new matrix is created
                 matrixCopy = data.matrixTextboxes
@@ -209,11 +199,9 @@ def areTextboxesActive(click):
         if textbox.clickedInside(click.pos):
             textbox.active = True
             clickedAny = True
-            print("textbox clicked")
 
         else:
             textbox.active = False
-            print("no textbox clicked")
 
     for textbox in data.matrixTextboxes:
         if textbox.clickedInside(click.pos):
