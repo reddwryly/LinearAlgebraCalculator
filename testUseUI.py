@@ -75,7 +75,7 @@ fontMatrix = pygame.font.Font(None, 32)
 textInput = data.textInput
 
 ''' BUTTONS '''
-buttonList = data.buttons
+
 ''' ###### CODE HERE ###### '''
 
 ''' ### OPTIONAL: DYNAMIC MATRIX TEXTBOX SPACING ###
@@ -136,7 +136,7 @@ while running:
                     methods.areTextboxesActive(event)
 
                     # returns values if buttons are clicked on
-                    clickResult = methods.checkClickedAny(buttonList, event)
+                    clickResult = methods.checkClickedAny(data.buttons, event)
 
                     # if the user clicks, but no textbox was clicked on, updates matrix size if changed
                     if clickResult == False:
@@ -144,7 +144,7 @@ while running:
                     
                     # else, if the user clicks and they clicked on a button:
                     else:
-                        methods.buttonClicked(clickResult, buttonList)
+                        methods.buttonClicked(clickResult, data.buttons)
                     
                                 
 
@@ -195,15 +195,15 @@ while running:
     ''' RECTANGLES and BUTTONS '''
     # main menu button
     buttonMain = pygame.draw.rect(screen, data.buttonColor, data.buttonMainCoords)
-    methods.addToButtons(buttonMain, buttonList)
+    methods.addToButtons(buttonMain, data.buttons)
 
     # "Clear Matrix" button
     buttonClearMatrix = pygame.draw.rect(screen, data.buttonColor, data.buttonClearMatrixCoords)
-    methods.addToButtons(buttonClearMatrix, buttonList)
+    methods.addToButtons(buttonClearMatrix,  data.buttons)
 
     # "Fill with Zeroes" button
     buttonFillWithZeroes = pygame.draw.rect(screen, data.buttonColor, data.buttonFillWithZeroesCoords)
-    methods.addToButtons(buttonFillWithZeroes, buttonList)
+    methods.addToButtons(buttonFillWithZeroes, data.buttons)
 
     # the area (dark green) where the matrix boxes will be
     areaMatrix = pygame.draw.rect(screen, data.areaMatrixColor, data.areaMatrixCoords)

@@ -22,8 +22,6 @@ tempList = data.tempList
 matrixCreated = False
 def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, ySpacing):
     global matrixTextboxes
-    # clears the matrix textbox list in case there is anything in it
-    matrixTextboxes = []
     totalTextboxes = (int(numRows) * int(numColumns))
 
     # iterates through the dimensions, creating textboxes
@@ -41,7 +39,8 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
             # creates the textboxes with the provided values then appends them to the textboxes list to be displayed onscreen
             # "row" and "column" are the textbox's row and column coords; the +1 is needed because of the for-in-range loops
             box = Textbox(x, y, width, height, fontMatrix, row=r+1, column=c+1, maxLength=7, allowedChars="0123456789/.")
-            matrixTextboxes.append(box)
+            data.matrixTextboxes.append(box)
+            print(data.matrixTextboxes)
 
 '''#########################################'''
 
@@ -51,17 +50,15 @@ def storeValues():
 
     # matrixTextboxes is the list of all matrix textboxes, tempList is the tempList used to create it (technically the active row),
     # and matrixValues is the master 2D list of values
-    global matrixTextboxes
     global tempList
-    global matrixValues
 
     # "row" is a counter used to navigate the 2D list
     row = 1
     # clears old matrixValues first to make room for new ones
-    matrixValues.clear()
+    data.matrixValues.clear()
 
     # iterates through all matrix entries and stores their values in a 2D list
-    for textbox in matrixTextboxes:
+    for textbox in data.matrixTextboxes:
         # sets the active row to whatever the active textbox row is
         row = textbox.row
 
@@ -70,16 +67,15 @@ def storeValues():
             matrixValues.append([])
         
         # copies the textbox value to the 2D list in the active row
-        matrixValues[row - 1].append(copy.deepcopy(textbox.textinput.value))
+        data.matrixValues[row - 1].append(copy.deepcopy(textbox.textinput.value))
 
 '''#########################################'''
 
 # clears all matrix elements, setting textboxes to empty
 def clearMatrix():
-    global matrixTextboxes
 
     # iterates through all matrix textboxes, clearing their values
-    for textbox in matrixTextboxes:
+    for textbox in data.matrixTextboxes:
         textbox.textinput.value =("")
         textbox.textinput.update([])
 
@@ -88,10 +84,9 @@ def clearMatrix():
 # is called when the user clicks on the "Fill with Zeroes" button
 # iterates through all matrix textboxes, filling empty ones with zero
 def fillWithZeroes():
-    global matrixTextboxes
 
     # iterates through every matrix textbox. if empty, fill with zero
-    for textbox in matrixTextboxes:
+    for textbox in data.matrixTextboxes:
         if textbox.textinput.value == "":
             textbox.textinput.value = "0"
 
@@ -110,8 +105,8 @@ def solveMatrix(method):
 
 # changes matrix dimensions. checks if and executes when dimension values change
 def changeMatrixSize():
-    global matrixTextboxes, matrixValues, matrixCreated, boxColumns, boxRows
-    print(matrixValues)
+    global boxColumns, boxRows
+    print(data.matrixValues)
 
     savedRows = int(data.savedRows)
     savedColumns = int(data.savedColumns)
@@ -119,6 +114,8 @@ def changeMatrixSize():
     # flags to indicate if rows or columns are being added or removed
     addSize = False
     removeSize = False
+
+    storeValues()
 
     # checks if a matrix has already been created. if not created, do nothing
     # savedColumns or Rows is what is stored from the last textbox value check (the old value)
@@ -160,14 +157,16 @@ def changeMatrixSize():
                 print("Deleting old matrix...")
                 print("creating new matrix...")
 
-                # "createMatrix" automatically stores matrix textboxes in a list and clears it with every creation
-                # a copy of that list is made here before the new matrix is created
-                matrixCopy = matrixTextboxes
+                # a copy of the matrix textbox list is made here before the new matrix is created
+                matrixCopy = data.matrixTextboxes
+
+                # removes the old matrix textboxes here then creates new ones
+                data.matrixTextboxes = []
                 createMatrix(savedRows, savedColumns, 250, 120, 100, 30, 110, 45)
 
                 # once the new matrix has been created, compares new and old textboxes to carry over applicable old values
                 # the row and column of each textbox just need to be the same
-                for textbox in matrixTextboxes:
+                for textbox in data.matrixTextboxes:
                     for oldBox in matrixCopy:
                         if textbox.row == oldBox.row and textbox.column == oldBox.column:
                             
@@ -177,7 +176,7 @@ def changeMatrixSize():
                 data.savedRows = numRows
                 data.savedColumns = numColumns
             
-            print(matrixValues) 
+            print(data.matrixValues) 
 
             
      
@@ -185,7 +184,7 @@ def changeMatrixSize():
 
 # adds buttons to the main list of buttons if they aren't in already
 # in data.py, there is a list called buttons. buttonList should be data.py.buttons? when called in main 
-# to be called every frame update to add buttons to the list. technically, if nothing changes, no buttons get added
+# to be called every frame update to add buttons to the list. if nothing changes, no buttons get added
 def addToButtons(button, buttonList):
     # a flag to check if the button to add is in the list or not 
     isInList = False 
@@ -205,16 +204,18 @@ def addToButtons(button, buttonList):
 # called by the method "checkClickedAny"
 def areTextboxesActive(click):
     clickedAny = False
-    for textbox in textboxes:
+    for textbox in data.textboxes:
         # if textbox is clicked, sets that textbox to be active
         if textbox.clickedInside(click.pos):
             textbox.active = True
             clickedAny = True
+            print("textbox clicked")
 
         else:
             textbox.active = False
+            print("no textbox clicked")
 
-    for textbox in matrixTextboxes:
+    for textbox in data.matrixTextboxes:
         if textbox.clickedInside(click.pos):
             textbox.active = True
             clickedAny = True
