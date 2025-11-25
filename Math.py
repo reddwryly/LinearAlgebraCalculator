@@ -31,7 +31,7 @@ testMatrix6 = np.array([[5,2,1,-5, 10, 0],
 
 testMatrix7 = np.array([[1,-1,3],[2,-4,5]]) #inconsistent
 
-def check_for_swap(matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex):
+def check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex):
     column = matrix[:,pivotColumnIndex] #returns column at the given index
     if column[pivotRowIndex] == 0:
         #loop through rest of column to find a value of not zero
@@ -45,22 +45,21 @@ def check_for_swap(matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnInde
             for index in range(pivotRowIndex, rowTotal):
                 if column[index] != 0:
                     #swap rows so piviot index is not zero
-                    print(f"r{pivotRowIndex+1} <=> r{index+1}")
+                    file.write(f"r{pivotRowIndex+1} <=> r{index+1}\n")
                     matrix[[pivotRowIndex, index]] = matrix[[index, pivotRowIndex]]
-                    print(matrix)
+                    file.writelines(f"{str(matrix)}\n")
                     break
                 if column[index] == 0 and index == rowTotal-1 and pivotColumnIndex+1 < columnTotal:
-                    print(f"no pivot in column {pivotColumnIndex+1}")
-                    check_for_swap(matrix, rowTotal, pivotRowIndex, pivotColumnIndex+1)
+                    file.write(f"no pivot in column {pivotColumnIndex+1}\n")
+                    check_for_swap(file, matrix, rowTotal, pivotRowIndex, pivotColumnIndex+1)
         else:
-            print(f"r{pivotRowIndex+1} <=> r{pivotOfOne+1}")
+            file.write(f"r{pivotRowIndex+1} <=> r{pivotOfOne+1}\n")
             matrix[[pivotRowIndex, pivotOfOne]] = matrix[[pivotOfOne, pivotRowIndex]]
-            print(matrix)
+            file.writelines(f"{str(matrix)}\n")
     return matrix
 
 def gaussian_elimination(matrix):
-    
-    print(matrix)
+    file = open("DisplayGuass.txt", "w")
     #PRINT ALL STEPS TO THE USER
     #only handling unique solutions, tell the user if no solutions (check for contradictions)
 
@@ -72,7 +71,8 @@ def gaussian_elimination(matrix):
     variables = []
     for columnIndex in range(1, columnTotal):
         variables += [f"X{columnIndex}"]
-    print(variables)
+    file.writelines(f"{str(variables)}\n")
+    file.writelines(f"{str(matrix)}\n")
         
     #column lastColumn + 1 => find pivot
     #see if rows need swaped => look for 0s in the pivotLocation = lastPivotIndex + 1
@@ -83,7 +83,7 @@ def gaussian_elimination(matrix):
     pivotRowIndex = 0
     pivotColumnIndex = 0
 
-    check_for_swap(matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex) #returns new matrix
+    check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex) #returns new matrix
 
     #repeat for all non pivot columns:
     #continue to non pivot row (top to bottom) => pivot * x - nonPivot = 0
@@ -103,15 +103,15 @@ def gaussian_elimination(matrix):
                 element += (matrix[pivotRowIndex][c] * rowMultiplier)
                 matrix[indexR][c] = element
             if rowMultiplier != 0:
-                print(f"{rowMultiplier} * r{pivotRowIndex+1} + r{indexR+1}") if rowMultiplier != 1 else print(f"r{pivotRowIndex+1} + r{indexR+1}")
-                print(matrix)
+                file.write(f"{rowMultiplier} * r{pivotRowIndex+1} + r{indexR+1}\n") if rowMultiplier != 1 else print(f"r{pivotRowIndex+1} + r{indexR+1}\n")
+                file.writelines(f"{str(matrix)}\n")
         pivotRowIndex += 1
         pivotColumnIndex += 1
         if pivotRowIndex == rowTotal-1:
             break
         if pivotColumnIndex == columnTotal-1:
             break
-        matrix = check_for_swap(matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex)
+        matrix = check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex)
 
     #when complete final triangle matrix => back substitution 
     #finalVariable = finalConstant || secondToLastVariable + finalConstant = secondToLastConstat 
@@ -124,7 +124,7 @@ def gaussian_elimination(matrix):
     infiniteSolution = False
     for rowIndex in range(rowTotal-1,-1,-1): 
         augment = matrix[rowIndex][columnTotal-1]
-        print()
+        file.write("\n")
         for columnIndex in range(columnTotal-2, -1,-1):
             coef = matrix[rowIndex][columnIndex]
             printList += [f"{coef}*{variables[columnIndex]}"]
@@ -136,7 +136,7 @@ def gaussian_elimination(matrix):
             else:
                 equation += f" + {printList[i]}"
         equationList += [equation]
-        print(equation)
+        file.writelines(f"{equation}\n")
         equation = ""
         printList = []
         
@@ -144,7 +144,7 @@ def gaussian_elimination(matrix):
         rowMinusAug = np.delete(matrix[rowIndex], -1) 
         rowCheck = rowMinusAug[rowMinusAug == 0] 
         if np.array_equal(rowMinusAug, rowCheck) and augment != 0:
-            print(f"Contradiction found: {augment} not equal to 0 \nThere are no solutions.")
+            file.write(f"Contradiction found: {augment} not equal to 0 \nThere are no solutions.\n")
             return 0
         
         #check for infinite solution
@@ -152,7 +152,7 @@ def gaussian_elimination(matrix):
         noZeroMatrixMask = ~allZeroRowMask
         new_matrix = matrix[noZeroMatrixMask] #masks remove all zero rows before checking for infinite solution
         if rowTotal < columnTotal-1:
-            print(f"There is a nonPivot row. The number of equations is less than the number of variables, there are infinite Solutions.")
+            file.write(f"There is a nonPivot row. The number of equations is less than the number of variables, there are infinite Solutions.\n")
             infiniteSolution = True
             break
 
@@ -190,7 +190,7 @@ def gaussian_elimination(matrix):
                     sum += (row[cIndex+increment]) * results[-increment] 
                     condition -= 1 
                     increment += 1
-            print()
+            file.write("\n")
             
             #prints equations with pluged in value 
             printList = []
@@ -229,12 +229,12 @@ def gaussian_elimination(matrix):
                 else:
                     equation += f" + {printList[i]}"
             equationList += [equation]
-            print(equation)
+            file.write(f"{equation}\n")
             equation = ""
             printList = []
 
             #prints final algebra equation
-            print(f"({aug[augIndex]} - {sum}) / {row[cIndex]} = {(aug[augIndex] - sum) / row[cIndex]}")
+            file.write(f"({aug[augIndex]} - {sum}) / {row[cIndex]} = {(aug[augIndex] - sum) / row[cIndex]}\n")
             results += [(aug[augIndex] - sum) / row[cIndex]]
             rIndex -= 1
             cIndex -= 1
@@ -258,14 +258,14 @@ def gaussian_elimination(matrix):
             for i in range(rowTotal,columnTotal-1):
                 freeVarColumnIndex += [i]
         for index in range(-1,(1+len(freeVarColumnIndex))*-1,-1): #sets free variable (swapps old variable for free varable)
-            print(f"let {variables[index]} = {letters[lettersIndex]}")
+            file.write(f"let {variables[index]} = {letters[lettersIndex]}\n")
             variables[index] = letters[lettersIndex]
             results += [letters[lettersIndex]]
             lettersIndex += 1
         for rowIndex in range(rowTotal-1,-1,-1): #prints each equation with free variable in the correct place
             augment = matrix[rowIndex][columnTotal-1]
             row = matrix[rowIndex,:]
-            print()
+            file.write("\n")
             for columnIndex in range(columnTotal-2, -1,-1):
                 coef = matrix[rowIndex][columnIndex]
                 printList += [f"{coef}*{variables[columnIndex]}"]
@@ -277,7 +277,7 @@ def gaussian_elimination(matrix):
                 else:
                     equation += f" + {printList[i]}"
             equationList += [equation]
-            print(equation)
+            file.write(f"{equation}\n")
             equation = ""
             printList = []
         
@@ -355,19 +355,24 @@ def gaussian_elimination(matrix):
             augIndex -= 1
             """
 
-    if not infiniteSolution:
-        results.reverse()
-        print()
-        for i in results:
-            print(i, end=" ")
+    # if not infiniteSolution: #doesnt work
+    #     results.reverse()
+    #     file.write("\n")
+    #     for i in results:
+    #         file.write(str(i), end=" ")
+    # file.close()
 
 # gaussian_elimination(testMatrix1)
-# gaussian_elimination(testMatrix2)
+gaussian_elimination(testMatrix2)
 # gaussian_elimination(testMatrix3)
 # gaussian_elimination(testMatrix4)
 # gaussian_elimination(testMatrix5)
-gaussian_elimination(testMatrix6)
+# gaussian_elimination(testMatrix6)
 # gaussian_elimination(testMatrix7)
+
+file = open("DisplayGuass.txt", "r")
+print(file.read())
+file.close()
 
 def guassian_jordan_elimination(matrix): # GJE means RREF - all zeroes in non-pivot points
     #
