@@ -1,6 +1,4 @@
 import numpy as np
-from sympy import symbols, Eq, solve, sympify #pip install sympy
-import re #pip install regex
 from fractions import Fraction
 np.set_printoptions(precision=10, suppress=False)
 
@@ -32,11 +30,13 @@ def check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColu
         else:
             file.write(f"r{pivotRowIndex+1} <=> r{pivotOfOne+1}\n")
             matrix[[pivotRowIndex, pivotOfOne]] = matrix[[pivotOfOne, pivotRowIndex]]
+            width = max(len(str(num)) for row in matrix for num in row) + 1
             for row in matrix:
-                file.write("|")
-                for element in row:
-                    file.write(f" {str(element)} ")
-                file.write("|\n")
+                file.write("| ")
+                file.write(f"{str(row[0])}")
+                for element in row[1:]:
+                    file.write(f" {str(element):>{width}}")
+                file.write(" |\n")
     return matrix
 
 def gaussian_elimination(matrix): #string input to handle fractions
@@ -61,11 +61,13 @@ def gaussian_elimination(matrix): #string input to handle fractions
     for columnIndex in range(1, columnTotal):
         variables += [f"X{columnIndex}"]
     file.writelines(f"{str(variables)}\n")
+    width = max(len(str(num)) for row in matrix for num in row) + 1
     for row in matrix:
-        file.write("|")
-        for element in row:
-            file.write(f" {str(element)} ")
-        file.write("|\n")
+        file.write("| ")
+        file.write(f"{str(row[0])}")
+        for element in row[1:]:
+            file.write(f" {str(element):>{width}}")
+        file.write(" |\n")
     
     #column lastColumn + 1 => find pivot
     #see if rows need swaped => look for 0s in the pivotLocation = lastPivotIndex + 1
@@ -96,12 +98,14 @@ def gaussian_elimination(matrix): #string input to handle fractions
                 element += (matrix[pivotRowIndex][c] * rowMultiplier)
                 matrix[indexR][c] = Fraction(element).limit_denominator(1000)
             if rowMultiplier != 0:
-                file.write(f"{rowMultiplier} * r{pivotRowIndex+1} + r{indexR+1}\n") if rowMultiplier != 1 else print(f"r{pivotRowIndex+1} + r{indexR+1}\n")
+                file.write(f"{rowMultiplier} * r{pivotRowIndex+1} + r{indexR+1}\n") if rowMultiplier != 1 else file.write(f"r{pivotRowIndex+1} + r{indexR+1}\n")
+                width = max(len(str(num)) for row in matrix for num in row) + 1
                 for row in matrix:
-                    file.write("|")
-                    for element in row:
-                        file.write(f" {str(element)} ")
-                    file.write("|\n")
+                    file.write("| ")
+                    file.write(f"{str(row[0])}")
+                    for element in row[1:]:
+                        file.write(f" {str(element):>{width}}")
+                    file.write(" |\n")
         pivotRowIndex += 1
         pivotColumnIndex += 1
         if pivotRowIndex == rowTotal-1:
@@ -240,49 +244,3 @@ def gaussian_elimination(matrix): #string input to handle fractions
             file.write(f"{variables[i]} = {results[i]}  ")
     file.close()
     return matrix, infiniteSolution, noSolution
-
-testMatrix1 = np.array([[0,-3,3,-1],
-                          [9,0,-1,4],
-                          [2,1,28,-2],
-                          [1,0,3,4]], dtype=float) #swap first pivot no rows skiped
-
-testMatrix2 = np.array([[9,2,-1,4],
-                        [0,0,3,-1],
-                          [2,0,28,-2]], dtype=float) #swap second pivot underdetermined
-
-testMatrix3 = np.array([[0,-3,3],
-                          [9,0,-1],
-                          [2,1,28],
-                          [1,0,3]], dtype=float) #overdetermined
-
-testMatrix4 = np.array([[1,2,3,9],
-                          [2,3,1,8],
-                          [3,1,2,10],], dtype=float) #from chatgpt
-
-testMatrix5 = np.array([[5,2,1,-5,0],
-                          [2,3,-2,3,0],
-                          [-14,-10,6,4,0]], dtype=float) #infinite solution
-
-testMatrix6 = np.array([[5,2,1,-5, 10, 0],
-                          [2,3,-2,3, 13, 0],
-                          [-14,-10,6,4, 20,0]], dtype=float) #infinite solution
-
-testMatrix7 = np.array([[1,-1,3],[2,-4,5]]) #inconsistent
-
-testMatrix8 = np.array([[1,-1,1,0],[4,1,0,5],[0,1,2,2]])
-
-testMatrix9 = np.array([[1,-1,1,-1,1],[2,1,1,-1,8],[0,1,-2,1,-1],[1,-4,-1,0,-12]]) 
-
-# gaussian_elimination(testMatrix1)
-# gaussian_elimination(testMatrix2)
-# gaussian_elimination(testMatrix3)
-# gaussian_elimination(testMatrix4)
-# gaussian_elimination(testMatrix5)
-# gaussian_elimination(testMatrix6)
-# gaussian_elimination(testMatrix7)
-# gaussian_elimination(testMatrix8)
-gaussian_elimination(testMatrix9)
-
-file = open("DisplayGuass.txt", "r")
-print(file.read())
-file.close()
