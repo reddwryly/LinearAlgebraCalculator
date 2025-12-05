@@ -108,6 +108,7 @@ textInput = data.textInput
 
 ''' ####### MAIN PYGAME LOOP ####### '''
 while running:
+
     events = pygame.event.get()
     
     # textInput needs events every frame
@@ -120,7 +121,6 @@ while running:
             # pygame.QUIT event means the user clicked X to close your window
             if event.type == pygame.QUIT:
                 running = False
-
             
             elif event.type == pygame.MOUSEBUTTONDOWN: # if user clicks their mouse
 
@@ -144,8 +144,8 @@ while running:
                     
                     # else, if the user clicks and they clicked on a button:
                     else:
-                        methods.buttonClicked(clickResult, data.buttons)
-                    
+                        methods.buttonClicked(clickResult, data.buttons, screen)
+                
                                 
 
                 ''' *** THIS CODE IS FOR PRESSING TAB AND ENTER ***
@@ -177,9 +177,8 @@ while running:
                         # else if the user presses ENTER
                         elif event.key == pygame.K_RETURN:
                             methods.enter(activeInfo)
+            
 
-                
-    
     # if a textbox is active, this will "handle events" AKA update the textbox with user text
     # the "updates" will update the text in them.
     #   - this is a little redundant in some places, but this guarantees all textboxes display live values 
@@ -193,6 +192,9 @@ while running:
     screen.fill("dark blue") # fills the screen with one color to clear it of last frame
 
     ''' RECTANGLES and BUTTONS '''
+    # the area (dark green) where the matrix boxes will be
+    areaMatrix = pygame.draw.rect(screen, data.areaMatrixColor, data.areaMatrixCoords)
+
     # main menu button
     buttonMain = pygame.draw.rect(screen, data.buttonColor, data.buttonMainCoords)
     methods.addToButtons(buttonMain, data.buttons)
@@ -205,9 +207,10 @@ while running:
     buttonFillWithZeroes = pygame.draw.rect(screen, data.buttonColor, data.buttonFillWithZeroesCoords)
     methods.addToButtons(buttonFillWithZeroes, data.buttons)
 
-    # the area (dark green) where the matrix boxes will be
-    areaMatrix = pygame.draw.rect(screen, data.areaMatrixColor, data.areaMatrixCoords)
-    
+    # "Solve - Gaussian" button
+    buttonSolveGaussian = pygame.draw.rect(screen, data.buttonColor, data.buttonGaussianCoords)
+    methods.addToButtons(buttonSolveGaussian, data.buttons)
+
 
     ### TEXT ### 
     textDimensions = fontDimensions.render("DIMENSIONS: ", True, data.textDimensionsColor)
@@ -225,6 +228,12 @@ while running:
     textFillWithZeroes = fontButtonsSmaller.render("Fill with Zeroes", True, "black")
     screen.blit(textFillWithZeroes, (48, 310))
 
+    textGaussian = fontButtons.render("Gaussian", True, "blue")
+    screen.blit(textGaussian, (280, 630))
+    
+
+
+
     # draws all the textboxes and updates active cursors
     for textbox in data.textboxes:
         textbox.draw(screen)
@@ -232,6 +241,14 @@ while running:
     for textbox in data.matrixTextboxes:
         textbox.draw(screen)
         textbox.checkCursor()
+
+    # every frame, checks if the user is trying to solve their matrix by checking data.panelList[]
+    # if there is a panel in panelList (if the user clicked a Solve button):
+    if len(data.panelList) > 0:
+
+        # displays the panel
+        methods.drawPanelItems()
+        methods.blitSurface(screen)
 
     # flip() the display to put work on screen
     pygame.display.flip()

@@ -1,13 +1,8 @@
 ''' METHODS to use for main file '''
 from classTextbox import Textbox
-import data, copy
-textboxes = data.textboxes
+import data, copy, pygame
 fontMatrix = data.fontMatrix
-matrixTextboxes = data.matrixTextboxes
-boxRows = data.boxRows
-boxColumns = data.boxColumns
-matrixValues = data.matrixValues
-tempList = data.tempList
+
 
 
 '''--- FUNCTIONS ---'''
@@ -21,8 +16,6 @@ tempList = data.tempList
 # spacing is the space between boxes in pixels. by default, good values for x- and y-spacing are 120 and 60
 matrixCreated = False
 def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, ySpacing):
-    global matrixTextboxes
-    totalTextboxes = (int(numRows) * int(numColumns))
 
     # iterates through the dimensions, creating textboxes
     # goes row by row, creating each entry then moving to the next row
@@ -40,34 +33,57 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
             # "row" and "column" are the textbox's row and column coords; the +1 is needed because of the for-in-range loops
             box = Textbox(x, y, width, height, fontMatrix, row=r+1, column=c+1, maxLength=7, allowedChars="0123456789/.")
             data.matrixTextboxes.append(box)
-            print(data.matrixTextboxes)
-
 '''#########################################'''
 
 # gathers and stores all matrix textbox entries
 # should be called when trying to solve matrix, or when updating matrix size
 def storeValues():
+    print("Initial:", data.matrixValues)
 
-    # matrixTextboxes is the list of all matrix textboxes, tempList is the tempList used to create it (technically the active row),
-    # and matrixValues is the master 2D list of values
-    global tempList
+    ''' ONLY executes when there are matrix textboxes existing '''
+    if data.matrixTextboxes:
+        # matrixTextboxes is the list of all matrix textboxes, tempList is the tempList used to create it (technically the active row),
+        # and matrixValues is the master 2D list of values
+        tempList = []
 
-    # "row" is a counter used to navigate the 2D list
-    row = 1
-    # clears old matrixValues first to make room for new ones
-    data.matrixValues.clear()
-
-    # iterates through all matrix entries and stores their values in a 2D list
-    for textbox in data.matrixTextboxes:
-        # sets the active row to whatever the active textbox row is
-        row = textbox.row
-
-        # if the 2D list is missing a row:
-        if len(matrixValues) < row:
-            matrixValues.append([])
         
-        # copies the textbox value to the 2D list in the active row
-        data.matrixValues[row - 1].append(copy.deepcopy(textbox.textinput.value))
+        # clears the lists used to make room for new values
+        data.matrixValues.clear()
+        tempList.clear()
+
+        # with the lists cleared, it adds the appropriate amount of rows and columns depending on the dimensions
+        targetColumns = int(data.boxColumns.textinput.value)
+        currentColumns = 0
+        
+        # assigns the number of elements to tempList; this is how many columns there are
+        # for example, four columns will make tempList be ["", "", "", ""]
+        while currentColumns < targetColumns:
+            tempList.append("")
+            currentColumns += 1
+
+        print("tempList:", tempList)
+
+        targetRows = int(data.boxRows.textinput.value)
+        currentRows = 0
+
+        # adds the appropriate amount of rows to the master list
+        while currentRows < targetRows:
+            data.matrixValues.append(tempList)
+            currentRows += 1
+
+        print("Master list: ", data.matrixValues)
+
+
+        # now that the master list is created to be the same dimension as matrix, stores the matrix values according to row and column
+        for textbox in data.matrixTextboxes:
+            value = textbox.textinput.value
+
+            # uses the textbox position to set each master list element to the right value
+            print(textbox.row, textbox.column)
+            print(data.matrixValues)
+            data.matrixValues[(textbox.row - 1)][(textbox.column - 1)] = int(value)
+
+
 
 '''#########################################'''
 
@@ -89,6 +105,7 @@ def fillWithZeroes():
     for textbox in data.matrixTextboxes:
         if textbox.textinput.value == "":
             textbox.textinput.value = "0"
+
 
 '''#########################################'''
 
@@ -127,14 +144,13 @@ def changeMatrixSize():
     if data.matrixCreated:
         # checks if the user has updated the dimensions values. does nothing if no change, executes if there is
         if (int(savedColumns) == int(numColumns)) and (int(savedRows) == int(numRows)):
-            print("matrix not changed", numRows, numColumns)
             pass
 
         # else, if the user has changed either the columns or dimensions:
         else:
-            print("matrix changed")
-            print("saved: ", savedRows, savedColumns)
-            print("new: ", numRows, numColumns)
+            print("Matrix changed.")
+            print("Saved rows, columns: ", savedRows, savedColumns)
+            print("New rows, columns: ", numRows, numColumns)
             storeValues()
 
             # runs if the matrix has already been created
@@ -143,11 +159,11 @@ def changeMatrixSize():
 
             # checks if the current dimension values are different than what are saved
             if (boxColumns.textinput.value != str(savedColumns)):
-                print("columns different")
+                print("Columns different")
                 savedColumns = int(boxColumns.textinput.value)
                 isDifferent = True                    
             if (boxRows.textinput.value != str(savedRows)):
-                print("rows different")
+                print("Rows different")
                 savedRows = int(boxRows.textinput.value)
                 isDifferent = True
             
@@ -176,7 +192,6 @@ def changeMatrixSize():
                 data.savedRows = numRows
                 data.savedColumns = numColumns
             
-            print(data.matrixValues) 
 
             
      
@@ -209,11 +224,9 @@ def areTextboxesActive(click):
         if textbox.clickedInside(click.pos):
             textbox.active = True
             clickedAny = True
-            print("textbox clicked")
 
         else:
             textbox.active = False
-            print("no textbox clicked")
 
     for textbox in data.matrixTextboxes:
         if textbox.clickedInside(click.pos):
@@ -238,10 +251,10 @@ def checkClickedAny(buttonList, click):
         # checks if the matrix has already been created or not
         if data.matrixCreated == False:
             # if the matrix is not created, then it checks for values in the dimensions textboxes
-            if boxRows.textinput.value and boxColumns.textinput.value:
+            if data.boxRows.textinput.value and data.boxColumns.textinput.value:
                 # these "saved" values are just semi-permanent dimension values so the matrix doesn't always clear itself
-                savedColumnValue = int(boxColumns.textinput.value)
-                savedRowValue = int(boxRows.textinput.value)
+                savedColumnValue = int(data.boxColumns.textinput.value)
+                savedRowValue = int(data.boxRows.textinput.value)
                 
                 # creates the matrix with the input values
                 createMatrix(numRows=savedRowValue, numColumns=savedColumnValue, startX=250, startY=120,
@@ -251,8 +264,8 @@ def checkClickedAny(buttonList, click):
                 data.matrixCreated = True
 
                 # updates the saved dimensions values with the first matrix creation
-                data.savedRows = boxRows.textinput.value
-                data.savedColumns = boxColumns.textinput.value
+                data.savedRows = data.boxRows.textinput.value
+                data.savedColumns = data.boxColumns.textinput.value
         
     # returns an identifer (button location) whenever button is clicked 
     for button in buttonList:
@@ -271,7 +284,7 @@ def checkClickedAny(buttonList, click):
 # executes a function depending on the button that is clicked
 # ALL buttons have a relatively UNIQUE identifier to them - their coords. for simplicity this is each button's topLeft
 # clickID should be a button's topLeft, as pygame also recognizes a rectangle's location as its topLeft
-def buttonClicked(clickID, buttonList):
+def buttonClicked(clickID, buttonList, screen):
     
     # activeButton is the button that is confirmed to be clicked, through loop iteration of the clickID
     # index comes from this - in the main loop, buttons are appended to the buttonList in this order:
@@ -279,6 +292,7 @@ def buttonClicked(clickID, buttonList):
     buttonMain
     buttonClearMatrix
     buttonFillWithZeroes
+    buttonSolveGaussian
 
     '''
     # iterates through the button list, gathering the index of which button was clicked
@@ -299,6 +313,13 @@ def buttonClicked(clickID, buttonList):
     
     elif activeButtonIndex == 2:
         fillWithZeroes()
+
+    # if a Solve button is clicked, it calls the functions needed to create and show the solving panel
+    elif activeButtonIndex == 3:
+        
+        # all Solve methods must fill empty slots with zeroes before starting
+        fillWithZeroes()
+        createSurface()
 
 ''' ***************************************************************************** '''
 
@@ -385,4 +406,100 @@ def enter(info):
     
     # else, the textbox is in the last row, and it is already deactivated
 
-        
+
+''' SOLVING SURFACE/PANEL '''
+# this code is for creating, calling, and updating the surface that displays when the user tries to solve their matrix
+# when the user clicks "Solve", the surface is created (in main loop, surface is displayed every refresh)
+# all panel data is stored in data.py
+
+''' Panel Code Notes '''
+# pygame visual workflow: child objects --> drawn to surface --> blitted to screen --> screen/display is flipped
+# for example: rectangle object created --> drawn to panel surface --> panel blitted to screen --> screen flipped in main loop
+# DRAWING != BLITTING:
+# "draw" doesn't actually display data on screen, it puts that data in an image. the image is blitted to the screen
+# "blit" actually displays data on screen
+
+def createSurface():
+    # pygame.Surface((length, width))
+    panel = pygame.Surface((data.panelLength, data.panelWidth))
+
+    # once panel has been created, appends it to data.panel[] for the main loop
+    data.panelList.append(panel)
+
+
+# draws the panel border every frame
+def drawPanelBorder(surface):
+    # info
+    panel = surface
+    borderColor = data.borderColor
+    rectValue = panel.get_rect()
+    
+    # draws border and color to the panel surface
+    pygame.draw.rect(surface=panel, color=borderColor, rect=rectValue, width=data.borderWidth)
+
+    test = data.panelFont.render("Test", True, borderColor)
+
+# on top of the background, draws/prerenders the rest of the items that are needed
+# needs to add matrix values, solutions
+def drawPanelItems():
+    # info
+    userMatrix = data.matrixValues
+    color = data.panelFontColor
+    ''' CODE to PULL from SOLUTION FILE here '''
+
+    # draws the matrix values:
+    # iterates through every matrix value, rendering it to a surface then appending those surfaces to a list
+    print(data.matrixValues)
+    for row in userMatrix:
+        for item in row:
+            value = str(item) # each "value" is a matrix value input by the user
+            valueSurface = data.panelFont.render(value, True, color) # renders the value 
+
+            # appends the rendered text surfaces to a list; these will be blitted later
+            data.surfacesValuesRendered.append(valueSurface)
+            
+    # draws the solving text
+    ''' code that draws data from the solution file, already gathered above '''
+
+# blits matrix text to the screen or panel surface
+# recap: iterates through each text surface, blitting them. adjusts spacing for the text on each iteration
+def blitMatrixText(targetSurface):
+    # info
+    xSpacing = 5 # horizontal spacing of text
+    ySpacing = 5 # vertical spacing of text
+    location = (50, 20) # active location to blit text. initial value here is starting point
+
+    # iterates through all the text surfaces, blitting them
+    for surfaceText in data.surfacesValuesRendered:
+
+        # blits the text to the screen
+        targetSurface.blit(surfaceText, location)
+
+        # adjusts spacing (the spacing itself remains the same; is used to move text as desrired)
+        xSpacing += 5
+        ySpacing += 5
+
+        # updates the location with the spacing increments. also needs to convert to list and back to change tuple values
+        location = list(location)
+        location[0] += xSpacing
+        location[1] += ySpacing
+        location = tuple(location)
+
+# blits the panel surface and info to the main screen
+def blitSurface(screen):
+    # gets the panel Surface from data.py, created by createSurface()
+    ''' the panel HAS to be ready FIRST, then everything is drawn to it, then the panel is blitted '''
+    panel = data.panelList[0]
+    panel.fill(data.panelColor)
+    drawPanelBorder(panel)
+
+    # blits the panel information
+    blitMatrixText(panel)
+
+
+
+    ''' BLITS the panel LAST because everything must be drawn to the panel first '''
+    screen.blit(panel, (0, 0)) # panel will be on the left side, so it starts topLeft at (0, 0)
+
+    ''' code for solving matrix goes here '''
+    ''' the code is pulled from another function that prerenders it '''

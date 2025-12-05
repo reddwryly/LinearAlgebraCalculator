@@ -10,6 +10,7 @@ pygame.init()
 screen = pygame.display.set_mode((1360, 765))
 clock = pygame.time.Clock()
 running = True
+newSurface = False
 
 # fonts for different texts. first parameter is font, second is size
 fontButtons = pygame.font.Font(None, 32)
@@ -26,10 +27,12 @@ buttonColor = ("white")
 buttonX = 40
 buttonWidth = 160
 buttonHeight = 80
+solveX = 250
 
 buttonMainCoords = (buttonX, 40, buttonWidth, buttonHeight)
 buttonClearMatrixCoords = (buttonX, 160, buttonWidth, buttonHeight)
 buttonFillWithZeroesCoords = (buttonX, 280, buttonWidth, buttonHeight)
+buttonGaussianCoords = (solveX, 600, buttonWidth, buttonHeight)
 
 # green background of matrix
 areaMatrixCoords = (240, 0, 1120, 765)
@@ -77,3 +80,36 @@ matrixCreated = False
 
 # activeRow is the current row being modified in the 2D list, used for methods.storeValues()
 activeRow = 1
+
+# panel[] is the list that contains the panel that displays when solving
+# this is just data validation code; only one panel should be in here
+
+panelList = []
+
+''' Panel Info '''
+# pygame.Surface((panelLength, panelWidth))
+panelLength = 600
+panelWidth = 765
+borderWidth = 10
+
+# color
+panelColor = ((0, 20, 60))
+borderColor = ((10, 120, 240))
+
+# font
+panelFont = pygame.font.Font(None, size=16)
+panelFontColor = "white"
+
+# file to pull answers from
+filename = ""
+
+# text and scrolling info
+beginX = 10
+beginY = 10
+charSpacing = 10
+textOffset = 0
+lineSpacing = 5
+
+# data to be blitted
+blitUserMatrix = None
+surfacesValuesRendered = []
