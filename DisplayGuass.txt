@@ -1,3 +1,10 @@
 ['X1']
-| 0  0 |
-no pivot in column 1
+| 1/2  2/3 |
+| 1  2/5 |
+-2 * r1 + r2
+| 1/2     2/3 |
+| 0  -14/15 |
+
+0*X1 
+Contradiction found: -14/15 not equal to 0 
+There are no solutions.

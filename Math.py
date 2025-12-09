@@ -26,7 +26,7 @@ def check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColu
                     break
                 if column[index] == 0 and index == rowTotal-1 and pivotColumnIndex+1 < columnTotal:
                     file.write(f"no pivot in column {pivotColumnIndex+1}\n")
-                    check_for_swap(file, matrix, rowTotal, pivotRowIndex, pivotColumnIndex+1)
+                    check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColumnIndex+1)
         else:
             file.write(f"r{pivotRowIndex+1} <=> r{pivotOfOne+1}\n")
             matrix[[pivotRowIndex, pivotOfOne]] = matrix[[pivotOfOne, pivotRowIndex]]
@@ -45,12 +45,10 @@ def gaussian_elimination(matrix): #string input to handle fractions
     #only handling unique solutions, tell the user if no solutions (check for contradictions)
 
     try:
-        matrix = matrix.astype(float)
+        matrix = np.vectorize(Fraction)(matrix)
     except ValueError:
         file.write("Not all elements are integers, decimals, or fractions. Try again.")
         return
-    
-    matrix = np.vectorize(Fraction)(matrix)
 
     #matrix.shape returns dim(matrix) indexing it as 1 returns the number of columns
     columnTotal = matrix.shape[1] #includes augmented column*
@@ -153,7 +151,9 @@ def gaussian_elimination(matrix): #string input to handle fractions
         #check for infinite solution
         allZeroRowMask = np.all(matrix == 0, axis=1)
         noZeroMatrixMask = ~allZeroRowMask
-        new_matrix = matrix[noZeroMatrixMask] #masks remove all zero rows before checking for infinite solution
+        matrix = matrix[noZeroMatrixMask] #masks remove all zero rows before checking for infinite solution
+        columnTotal = matrix.shape[1] #includes augmented column*
+        rowTotal = matrix.shape[0]
         if rowTotal < columnTotal-1:
             file.write(f"There is a nonPivot row. The number of equations is less than the number of variables, there are infinite Solutions.\n")
             infiniteSolution = True
