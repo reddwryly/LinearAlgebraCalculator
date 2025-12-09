@@ -81,14 +81,16 @@ matrixCreated = False
 # activeRow is the current row being modified in the 2D list, used for methods.storeValues()
 activeRow = 1
 
-# panel[] is the list that contains the panel that displays when solving
-# this is just data validation code; only one panel should be in here
-
-panelList = []
+# matrix object
+matrix = None
 
 ''' Panel Info '''
+# panel[] is the list that contains the panel that displays when solving
+# this is just data validation code; only one panel should be in here
+panelList = []
+
 # pygame.Surface((panelLength, panelWidth))
-panelLength = 600
+panelLength = 800
 panelWidth = 765
 borderWidth = 10
 
@@ -97,7 +99,7 @@ panelColor = ((0, 20, 60))
 borderColor = ((10, 120, 240))
 
 # font
-panelFont = pygame.font.Font(None, size=16)
+panelFont = pygame.font.Font(None, 24)
 panelFontColor = "white"
 
 # file to pull answers from
@@ -106,10 +108,13 @@ filename = ""
 # text and scrolling info
 beginX = 10
 beginY = 10
-charSpacing = 10
 textOffset = 0
-lineSpacing = 5
 
 # data to be blitted
 blitUserMatrix = None
+listSurfaceTuples = []
 surfacesValuesRendered = []
+
+# text strings to display in the solving panel
+intro = "Here are the steps to solving your matrix: "
+solutionSurfaces = []

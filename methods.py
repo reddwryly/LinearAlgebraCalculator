@@ -1,6 +1,7 @@
 ''' METHODS to use for main file '''
 from classTextbox import Textbox
-import data, copy, pygame
+import data, copy, pygame, numpy, Math
+
 fontMatrix = data.fontMatrix
 
 
@@ -38,15 +39,14 @@ def createMatrix(numRows, numColumns, startX, startY, width, height, xSpacing, y
 # gathers and stores all matrix textbox entries
 # should be called when trying to solve matrix, or when updating matrix size
 def storeValues():
-    print("Initial:", data.matrixValues)
 
     ''' ONLY executes when there are matrix textboxes existing '''
-    if data.matrixTextboxes:
+    if len(data.matrixTextboxes) > 0:
+
         # matrixTextboxes is the list of all matrix textboxes, tempList is the tempList used to create it (technically the active row),
         # and matrixValues is the master 2D list of values
         tempList = []
 
-        
         # clears the lists used to make room for new values
         data.matrixValues.clear()
         tempList.clear()
@@ -61,29 +61,37 @@ def storeValues():
             tempList.append("")
             currentColumns += 1
 
-        print("tempList:", tempList)
 
         targetRows = int(data.boxRows.textinput.value)
         currentRows = 0
 
         # adds the appropriate amount of rows to the master list
         while currentRows < targetRows:
-            data.matrixValues.append(tempList)
+            data.matrixValues.append(tempList.copy())
             currentRows += 1
 
-        print("Master list: ", data.matrixValues)
 
 
         # now that the master list is created to be the same dimension as matrix, stores the matrix values according to row and column
         for textbox in data.matrixTextboxes:
+
             value = textbox.textinput.value
 
             # uses the textbox position to set each master list element to the right value
-            print(textbox.row, textbox.column)
-            print(data.matrixValues)
-            data.matrixValues[(textbox.row - 1)][(textbox.column - 1)] = int(value)
+            # data that simplifies the value assignment
+            targetRow = textbox.row
+            masterRow = targetRow - 1
+            targetColumn = textbox.column
+            masterColumn = targetColumn - 1
+
+            # sets the appropriate master value to the textbox value
+            data.matrixValues[masterRow][masterColumn] = value
 
 
+# converts the 2D matrix list into a numpy array
+def convertToMatrix():
+    matrix = numpy.array(data.matrixValues)
+    data.matrix = matrix
 
 '''#########################################'''
 
@@ -123,7 +131,6 @@ def solveMatrix(method):
 # changes matrix dimensions. checks if and executes when dimension values change
 def changeMatrixSize():
     global boxColumns, boxRows
-    print(data.matrixValues)
 
     savedRows = int(data.savedRows)
     savedColumns = int(data.savedColumns)
@@ -131,8 +138,6 @@ def changeMatrixSize():
     # flags to indicate if rows or columns are being added or removed
     addSize = False
     removeSize = False
-
-    storeValues()
 
     # checks if a matrix has already been created. if not created, do nothing
     # savedColumns or Rows is what is stored from the last textbox value check (the old value)
@@ -158,13 +163,13 @@ def changeMatrixSize():
             isDifferent = False
 
             # checks if the current dimension values are different than what are saved
-            if (boxColumns.textinput.value != str(savedColumns)):
+            if (data.boxColumns.textinput.value != str(savedColumns)):
                 print("Columns different")
-                savedColumns = int(boxColumns.textinput.value)
+                savedColumns = int(data.boxColumns.textinput.value)
                 isDifferent = True                    
-            if (boxRows.textinput.value != str(savedRows)):
+            if (data.boxRows.textinput.value != str(savedRows)):
                 print("Rows different")
-                savedRows = int(boxRows.textinput.value)
+                savedRows = int(data.boxRows.textinput.value)
                 isDifferent = True
             
             # if the user changes the dimensions, then it deletes the old matrix & creates a new matrix with new dimensions
@@ -319,6 +324,11 @@ def buttonClicked(clickID, buttonList, screen):
         
         # all Solve methods must fill empty slots with zeroes before starting
         fillWithZeroes()
+
+        # stores all values in the matrix to use for solving
+        storeValues()
+
+        # begins creating the panel for the solution
         createSurface()
 
 ''' ***************************************************************************** '''
@@ -439,54 +449,145 @@ def drawPanelBorder(surface):
 
     test = data.panelFont.render("Test", True, borderColor)
 
+
 # on top of the background, draws/prerenders the rest of the items that are needed
 # needs to add matrix values, solutions
 def drawPanelItems():
     # info
-    userMatrix = data.matrixValues
+    userMatrix = data.matrixTextboxes
     color = data.panelFontColor
-    ''' CODE to PULL from SOLUTION FILE here '''
 
-    # draws the matrix values:
-    # iterates through every matrix value, rendering it to a surface then appending those surfaces to a list
-    print(data.matrixValues)
-    for row in userMatrix:
-        for item in row:
-            value = str(item) # each "value" is a matrix value input by the user
-            valueSurface = data.panelFont.render(value, True, color) # renders the value 
+    ''' DRAWING matrix values '''
+    # iterates through every textbox value, rendering it to a surface, then copies the surface with row and column to a list of tuples
+    for textbox in userMatrix:
 
-            # appends the rendered text surfaces to a list; these will be blitted later
-            data.surfacesValuesRendered.append(valueSurface)
+        # gets the textbox input value
+        value = textbox.textinput.value
+
+        # renders the text value into a Surface
+        valueSurface = data.panelFont.render(value, True, color)
+
+        # creates a tuple with the text Surface, and the active textbox row and column
+        targetTuple = (valueSurface, textbox.row, textbox.column)
+
+        # copies the tuple to the list of Surface tuples, then the loop repeats for the next textbox; these will be blitted later
+        data.listSurfaceTuples.append(targetTuple)
+
+
+# gets and prerenders solution file data
+def prepSolution():
+
+    # performs the solving of the matrix
+    convertToMatrix()
+    Math.gaussian_elimination(matrix=data.matrix)
+
+    # "with" automatically opens and closes the file, to ensure memory efficiency
+    with open("DisplayGuass.txt", "r") as file:
+
+        # file.readlines() reads all lines and returns them as a list of strings; each element is one line
+        content = file.readlines()
+    
+    # draws/prerenders the file contents (into a Surface to be blitted later)
+    # the Surfaces are stored in tuples with number identifiers, to help with blitting and line spacing
+    counter = 1
+    for line in content:
+        solutionSurface = data.panelFont.render(line, True, data.panelFontColor)
+        solutionTuple = (solutionSurface, counter)
+        data.solutionSurfaces.append(solutionTuple)
+        counter += 1
+
+
+# blits the prerendered solution text from the file onto the panel
+def blitSolution(targetSurface):
+
+    # info
+    startX = 20
+    startY = 60
+    lineConsideration = 0 # used for text wrapping
+    difference = 0
+    numberOfLines = 0
+    coordList = []
+    index = 0
+    flag = False
+
+    
+    # iterates through each prerendered line from the solution file
+    # each "line" is a tuple consisting of (Surface, counter)
+    for line in data.solutionSurfaces:
+        if flag == False:
+            y = startY + ( (20 * line[1]) - difference)
+            location = (startX, y)
+
+            # blits the line surface to the panel
+            targetSurface.blit(line[0], location)
+
+            # adds the location to a list for spacing
+            coordList.append((y))
+
+        else:
+            y = coordList[index]
+            location = (startX, y)
+            targetSurface.blit(line[0], location)
+            if index != len(coordList) - 1:
+                index += 1
+            else:
+                index = 0
+
+
+        # checks if the next line will be blitted at the bottom of the panel or not
+        # if so, it needs to be blitted to the right, going top down again
+        if y > 750: # 750 is near the bottom of the screen, which is 765
+
+            # sets the starting x-value to be moved over to the right
+            startX += 300
+
+            # activates the flag that determines when a column is complete
+            flag = True
+
+     
             
-    # draws the solving text
-    ''' code that draws data from the solution file, already gathered above '''
+
+
+
 
 # blits matrix text to the screen or panel surface
 # recap: iterates through each text surface, blitting them. adjusts spacing for the text on each iteration
 def blitMatrixText(targetSurface):
     # info
-    xSpacing = 5 # horizontal spacing of text
-    ySpacing = 5 # vertical spacing of text
-    location = (50, 20) # active location to blit text. initial value here is starting point
+    # determines horizontal spacing by length of text
+    longest = 0
+    for row in data.matrixValues:
+        for value in row:
+            if len(value) > longest:
+                longest = len(value)
 
-    # iterates through all the text surfaces, blitting them
-    for surfaceText in data.surfacesValuesRendered:
+    xSpacing = 25 * longest # horizontal spacing of text
+    ySpacing = 25 # vertical spacing of text
+    startLocation = (50, 0) # active location to blit text. initial value here is starting point
 
-        # blits the text to the screen
-        targetSurface.blit(surfaceText, location)
+    # iterates through and blits all the text surface tuples
+    # format is (Surface, row, column)
+    for surface in data.listSurfaceTuples:
 
-        # adjusts spacing (the spacing itself remains the same; is used to move text as desrired)
-        xSpacing += 5
-        ySpacing += 5
+        activeLocation = startLocation
 
-        # updates the location with the spacing increments. also needs to convert to list and back to change tuple values
-        location = list(location)
-        location[0] += xSpacing
-        location[1] += ySpacing
-        location = tuple(location)
+        
+        activeLocation = list(activeLocation)
 
-# blits the panel surface and info to the main screen
-def blitSurface(screen):
+        # rows affect y-value, columns affect x-value
+        activeLocation[0] += (surface[2] * xSpacing)
+        activeLocation[1] += (surface[1] * ySpacing)
+
+        # converts the activeLocation back to tuple
+        activeLocation = tuple(activeLocation)
+
+        # blits the text to the screen with updated location
+        targetSurface.blit(surface[0], activeLocation)
+
+
+''' BLITS literally everything - the data to the panel, then the panel to the screen '''
+def blitEverything(screen):
+
     # gets the panel Surface from data.py, created by createSurface()
     ''' the panel HAS to be ready FIRST, then everything is drawn to it, then the panel is blitted '''
     panel = data.panelList[0]
@@ -496,7 +597,8 @@ def blitSurface(screen):
     # blits the panel information
     blitMatrixText(panel)
 
-
+    # blits the matrix solution to the panel
+    blitSolution(panel)
 
     ''' BLITS the panel LAST because everything must be drawn to the panel first '''
     screen.blit(panel, (0, 0)) # panel will be on the left side, so it starts topLeft at (0, 0)
