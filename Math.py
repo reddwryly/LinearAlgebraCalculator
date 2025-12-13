@@ -18,11 +18,13 @@ def check_for_swap(file, matrix, rowTotal, columnTotal, pivotRowIndex, pivotColu
                     #swap rows so piviot index is not zero
                     file.write(f"r{pivotRowIndex+1} <=> r{index+1}\n")
                     matrix[[pivotRowIndex, index]] = matrix[[index, pivotRowIndex]]
+                    width = max(len(str(num)) for row in matrix for num in row) + 1
                     for row in matrix:
-                        file.write("|")
-                        for element in row:
-                            file.write(f" {str(element)} ")
-                        file.write("|\n")
+                        file.write("| ")
+                        file.write(f"{str(row[0])}")
+                        for element in row[1:]:
+                            file.write(f" {str(element):>{width}}")
+                        file.write(" |\n")
                     break
                 if column[index] == 0 and index == rowTotal-1 and pivotColumnIndex+1 < columnTotal:
                     file.write(f"no pivot in column {pivotColumnIndex+1}\n")
@@ -196,22 +198,6 @@ def gaussian_elimination(matrix): #string input to handle fractions
             equationList = []
             equation = ""
 
-            """
-            expected:
-            coef*X3 + 0*X2 + 0*X2 = aug
-            .... = resultX3
-
-            coef*resultX3 + coef*X2 + 0*X1 = aug
-            .... = resultX2
-
-            coef*resultX3 + coef*resultX2 + coef*X1 = aug
-            .... = resultX1
-
-            result part works
-
-            equation plug in only puts the last result not 'all of the above' last results
-            """
-
             for columnIndex in range(columnTotal-2, -1, -1):
                 coef = matrix[rIndex][columnIndex]
                 resultsIndex = (columnTotal - 2) - columnIndex #has resultsIndex iterating backwards relative to columnIndex
@@ -244,3 +230,12 @@ def gaussian_elimination(matrix): #string input to handle fractions
             file.write(f"{variables[i]} = {results[i]}  ")
     file.close()
     return matrix, infiniteSolution, noSolution
+
+test = np.array([[[2, -1, 0, 3, 1],
+[1, 0, 4, -2, 1],
+[3, 1, 2, 1, 0],
+[0, 2, -1, 1, 3],
+[1, -2, 1, 0, 2]]
+])
+gaussian_elimination(test)
+with open("DisplayGuass.txt", "r") as f: print(f.read()) 
